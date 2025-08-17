@@ -65,7 +65,7 @@ const Invoice = forwardRef<HTMLDivElement, InvoiceProps>(({ order }, ref) => {
                </tr>
                <tr className="font-bold border-b border-dashed">
                   <td colSpan={2} className="py-2 text-left">
-                     Payment Method
+                     Metode Pembayaran
                   </td>
                   <td className="py-2">{order.paymentMethod}</td>
                </tr>
