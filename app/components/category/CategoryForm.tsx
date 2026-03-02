@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from "react";
 import LoadingButton from "../ui/LoadingButton";
+import TextInput from "../ui/TextInput";
 
 interface formErrors {
    categoryName?: string;
@@ -47,14 +48,12 @@ const CategoryForm = ({
                      {formErrors.categoryName}
                   </p>
                )}
-               <input
-                  type="text"
+               <TextInput
                   id="categoryName"
                   name="categoryName"
                   placeholder="Enter category name"
                   value={formData.categoryName}
                   onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
                />
             </div>
 

@@ -63,8 +63,8 @@ const OrderItem = ({ order, mutate }: OrderItemProps) => {
 
    const confirmDeleteOrder = useCallback(async () => {
       if (!selectedOrder?.orderId) return;
-      await handleDeleteOrder(selectedOrder.orderId, mutate);
-   }, [selectedOrder, mutate]);
+      await handleDeleteOrder(selectedOrder.orderId, mutate, closeModal);
+   }, [selectedOrder, mutate, closeModal]);
 
    const contentRef = useRef<HTMLDivElement>(null);
 

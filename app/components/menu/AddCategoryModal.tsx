@@ -4,6 +4,7 @@ import LoadingButton from "../ui/LoadingButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import useCategoryActions from "@/app/hooks/useCategoryActions";
+import TextInput from "../ui/TextInput";
 interface AddCategoryModalProps {
    isAddCategoryModalOpen: boolean;
    closeAddCategoryModal: () => void;
@@ -52,7 +53,6 @@ export default function AddCategoryModal({
       });
    };
    return (
-      <>
          <Modal isOpen={isAddCategoryModalOpen} onClose={closeAddCategoryModal}>
             <form onSubmit={submitAddCategory}>
                <div className="flex gap-2">
@@ -61,14 +61,12 @@ export default function AddCategoryModal({
                         {formErrors.categoryName}
                      </p>
                   )}
-                  <input
-                     type="text"
+                  <TextInput
                      id="categoryName"
                      name="categoryName"
                      placeholder="Enter category name"
                      value={formData.categoryName}
                      onChange={handleChange}
-                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
                   />
                   {/* Submit Button */}
                   <button
@@ -92,6 +90,5 @@ export default function AddCategoryModal({
                </div>
             </form>
          </Modal>
-      </>
    );
 }

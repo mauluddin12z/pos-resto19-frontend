@@ -5,6 +5,8 @@ import { CategoryInterface } from "../../types";
 import AddCategoryModal from "./AddCategoryModal";
 import { useCategories } from "@/app/api/categoryServices";
 import LoadingButton from "../ui/LoadingButton";
+import TextInput from "../ui/TextInput";
+import NumberInput from "../ui/NumberInput";
 
 interface formErrors {
    menuName?: string;
@@ -100,14 +102,12 @@ const MenuForm = ({
                      {formErrors.menuName}
                   </p>
                )}
-               <input
-                  type="text"
+               <TextInput
                   id="menuName"
                   name="menuName"
                   placeholder="Enter menu name"
                   value={formData.menuName}
                   onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
                />
             </div>
 
@@ -186,14 +186,12 @@ const MenuForm = ({
                         {formErrors.stock}
                      </p>
                   )}
-                  <input
-                     type="number"
+                  <NumberInput
                      id="stock"
                      name="stock"
                      step="1"
                      value={formData.stock}
                      onChange={handleChange}
-                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
                   />
                </div>
 
@@ -210,14 +208,12 @@ const MenuForm = ({
                         {formErrors.price}
                      </p>
                   )}
-                  <input
-                     type="number"
+                  <NumberInput
                      id="price"
                      name="price"
                      value={formData.price}
                      onChange={handleChange}
                      step="100"
-                     className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
                   />
                </div>
             </div>

@@ -40,7 +40,7 @@ export const deleteOrderDetailByOrderId = async (id: string | number) => {
 // -----------------------------
 
 export const useOrderDetails = () => {
-   const { data, error, isValidating, mutate } = useSWR(
+   const { data, error, mutate } = useSWR(
       "order-details",
       fetchOrderDetails,
       {

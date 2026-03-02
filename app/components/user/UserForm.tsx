@@ -1,5 +1,6 @@
 import React from "react";
 import LoadingButton from "../ui/LoadingButton";
+import TextInput from "../ui/TextInput";
 
 interface formErrors {
    name?: string;
@@ -48,14 +49,12 @@ const UserForm = ({
                {formErrors.name && (
                   <p className="text-xs text-red-500 mb-1">{formErrors.name}</p>
                )}
-               <input
-                  type="text"
+               <TextInput
                   id="name"
                   name="name"
                   placeholder="Enter name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
                />
             </div>
 
@@ -72,14 +71,12 @@ const UserForm = ({
                      {formErrors.username}
                   </p>
                )}
-               <input
-                  type="text"
+               <TextInput
                   id="username"
                   name="username"
                   placeholder="Enter username"
                   value={formData.username}
                   onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
                />
             </div>
 

@@ -9,7 +9,7 @@ import Modal from "../components/ui/Modal";
 import Search from "../components/ui/Search";
 import AddMenuForm from "../components/menu/AddMenuForm";
 
-export default function page() {
+export default function Page() {
    const [searchQuery, setSearchQuery] = useState("");
    const [filters, setFilters] = useState<MenuFilterInterface>({
       categoryId: null,
@@ -60,6 +60,11 @@ export default function page() {
                loading={loadingMenus}
                mutate={mutate}
             />
+            {menus?.data?.length === 0 && !loadingMenus && (
+               <div className="col-span-full text-center text-gray-500">
+                  No menus found.
+               </div>
+            )}
             <div className="flex justify-center items-center">
                <Pagination
                   totalItems={menus?.pagination?.totalItems}

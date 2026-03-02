@@ -29,7 +29,7 @@ export default function SummaryCards() {
       dateRange: "",
       fromDate: "",
       toDate: "",
-      paymentStatus: "",
+      paymentStatus: "paid",
    });
 
    // Filters for today's orders

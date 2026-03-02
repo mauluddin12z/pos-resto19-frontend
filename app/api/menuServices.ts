@@ -76,7 +76,6 @@ export const useMenus = (filters?: any) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
    });
-
    return {
       menus: response,
       isLoading: !response && !error,

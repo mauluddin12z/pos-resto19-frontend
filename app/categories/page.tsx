@@ -10,7 +10,7 @@ import AddCategoryForm from "../components/category/AddCategoryForm";
 import EditCategoryForm from "../components/category/EditCategoryForm";
 import useCategoryActions from "../hooks/useCategoryActions";
 
-export default function page() {
+export default function Page() {
    const [searchQuery, setSearchQuery] = useState("");
    const [filters, setFilters] = useState({
       searchQuery: "",
@@ -18,13 +18,6 @@ export default function page() {
       pageSize: 10,
    });
 
-   // Debounce search query update
-   useEffect(() => {
-      const timeout = setTimeout(() => {
-         setFilters((prev) => ({ ...prev, searchQuery, page: 1 }));
-      }, 300);
-      return () => clearTimeout(timeout);
-   }, [searchQuery]);
    const {
       categories,
       isLoading: loadingCategories,
@@ -100,64 +93,70 @@ export default function page() {
                   Add category
                </button>
             </div>
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500">
-               <thead className="text-xs text-gray-700 bg-gray-50">
-                  <tr>
-                     <th scope="col" className="px-6 py-3">
-                        Category Name
-                     </th>
-                     <th
-                        scope="col"
-                        className="px-6 py-3 bg-gray-50 sticky right-0 text-center"
-                     >
-                        Action
-                     </th>
-                  </tr>
-               </thead>
-               <tbody>
-                  {loadingCategories ? (
+            <div className="relative overflow-x-auto sm:rounded-lg">
+               <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+                  <thead className="text-xs text-gray-700 bg-gray-50">
                      <tr>
-                        <td colSpan={2} className="px-6 py-4 text-center">
-                           <div className="flex justify-center items-center">
-                              Loading...
-                           </div>
-                        </td>
+                        <th scope="col" className="px-6 py-3">
+                           Category Name
+                        </th>
+                        <th
+                           scope="col"
+                           className="px-6 py-3 bg-gray-50 sticky right-0 text-center"
+                        >
+                           Action
+                        </th>
                      </tr>
-                  ) : (
-                     categories?.data.map(
-                        (category: CategoryInterface, index: number) => (
-                           <tr
-                              key={index}
-                              className="bg-white border-gray-200 border-b"
-                           >
-                              <th
-                                 scope="row"
-                                 className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                  </thead>
+                  <tbody>
+                     {loadingCategories ? (
+                        <tr>
+                           <td colSpan={2} className="px-6 py-4 text-center">
+                              <div className="flex justify-center items-center">
+                                 Loading...
+                              </div>
+                           </td>
+                        </tr>
+                     ) : (
+                        categories?.data.map(
+                           (category: CategoryInterface, index: number) => (
+                              <tr
+                                 key={index}
+                                 className="bg-white border-gray-200 border-b"
                               >
-                                 {category.categoryName}
-                              </th>
-                              <td className="px-6 py-4 sticky right-0 bg-white">
-                                 <div className="flex flex-wrap justify-center items-center gap-2">
-                                    <button
-                                       onClick={() => openEditModal(category)}
-                                       className="font-medium text-blue-600 hover:underline cursor-pointer"
-                                    >
-                                       Edit
-                                    </button>
-                                    <button
-                                       onClick={() => openDeleteModal(category)}
-                                       className="font-medium text-red-600 hover:underline cursor-pointer"
-                                    >
-                                       Delete
-                                    </button>
-                                 </div>
-                              </td>
-                           </tr>
+                                 <th
+                                    scope="row"
+                                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap"
+                                 >
+                                    {category.categoryName}
+                                 </th>
+                                 <td className="px-6 py-4 sticky right-0 bg-white">
+                                    <div className="flex flex-wrap justify-center items-center gap-2">
+                                       <button
+                                          onClick={() =>
+                                             openEditModal(category)
+                                          }
+                                          className="font-medium text-blue-600 hover:underline cursor-pointer"
+                                       >
+                                          Edit
+                                       </button>
+                                       <button
+                                          onClick={() =>
+                                             openDeleteModal(category)
+                                          }
+                                          className="font-medium text-red-600 hover:underline cursor-pointer"
+                                       >
+                                          Delete
+                                       </button>
+                                    </div>
+                                 </td>
+                              </tr>
+                           )
                         )
-                     )
-                  )}
-               </tbody>
-            </table>
+                     )}
+                  </tbody>
+               </table>
+            </div>
             <div className="flex justify-center items-center">
                <Pagination
                   totalItems={categories?.pagination?.totalItems}

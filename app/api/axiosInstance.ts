@@ -1,4 +1,4 @@
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { refreshAccessToken, logout } from "./auth";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_MY_BACKEND_URL as string;
@@ -6,7 +6,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_MY_BACKEND_URL as string;
 const axiosInstance = axios.create({
    baseURL: API_BASE_URL,
    headers: {
-      "Content-type": "multipart/form-data"
+      "Content-type": "multipart/form-data",
    },
    withCredentials: true,
 });
@@ -27,13 +27,21 @@ axiosInstance.interceptors.response.use(
          try {
             await refreshAccessToken();
             return axiosInstance(originalRequest);
-         } catch (err) {
+         } catch (err: any) {
             logout();
-            return Promise.reject(err);
+            return Promise.reject(
+               error instanceof Error
+                  ? error
+                  : new Error(err.message || "Request failed")
+            );
          }
       }
 
-      return Promise.reject(error);
+      return Promise.reject(
+         error instanceof Error
+            ? error
+            : new Error(error.message || "Request failed")
+      );
    }
 );
 

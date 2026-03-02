@@ -29,6 +29,12 @@ export default function Sidebar() {
          roles: ["admin", "superadmin"],
       },
       {
+         href: "/sales",
+         label: "Sales",
+         icon: "sales.svg",
+         roles: ["admin", "superadmin"],
+      },
+      {
          href: "/menus",
          label: "Menus",
          icon: "menus.svg",
