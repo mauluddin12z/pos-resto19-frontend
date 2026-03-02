@@ -69,9 +69,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${roboto.variable} antialiased`}
-      >
+      <body className={`${roboto.variable} antialiased`}>
         <AuthProvider>
           <AlertProvider>{children}</AlertProvider>
         </AuthProvider>
