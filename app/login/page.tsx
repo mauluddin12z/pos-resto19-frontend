@@ -17,7 +17,7 @@ export default function Page() {
       try {
          await login(username, password);
          setisSubmitting(false);
-         router.push("/home");
+         router.push("/beranda");
       } catch (error: any) {
          setisSubmitting(false);
          setMessage(error?.message || "An error occurred.");

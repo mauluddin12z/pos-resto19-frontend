@@ -10,14 +10,14 @@ export function middleware(req: NextRequest) {
    // If no token and accessing protected routes, redirect to login
    if (
       !isLoggedIn &&
-      ["/home", "/orders", "/menus", "/categories", "/users"].includes(pathname)
+      ["/beranda", "/pesanan", "/menu", "/kategori", "/pengguna"].includes(pathname)
    ) {
       return NextResponse.redirect(new URL("/login", req.url));
    }
 
    // If user is logged in but trying to access the login page, redirect to home
    if (isLoggedIn && pathname === "/login") {
-      return NextResponse.redirect(new URL("/home", req.url));
+      return NextResponse.redirect(new URL("/beranda", req.url));
    }
 
    // Check the user's role if they are logged in
@@ -42,5 +42,5 @@ export function middleware(req: NextRequest) {
    }
 }
 export const config = {
-   matcher: ["/home", "/orders", "/menus", "/categories", "/users", "/login"],
+   matcher: ["/beranda", "/pesanan", "/menu", "/kategori", "/pengguna", "/login"],
 };
