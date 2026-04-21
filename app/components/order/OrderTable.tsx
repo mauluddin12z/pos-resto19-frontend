@@ -1,7 +1,7 @@
 import React from "react";
 import { OrderInterface } from "../../types";
-import { formatDateToIndonesian } from "../../utils/dateFormat";
 import { priceFormat } from "../../utils/priceFormat";
+import momentInstance from "@/app/utils/momentConfig";
 
 interface OrderTableProps {
    orders: OrderInterface[];
@@ -57,8 +57,8 @@ const OrderTable: React.FC<OrderTableProps> = ({
                         className="bg-white border-gray-200 border-b font-semibold"
                      >
                         <td className="px-6 py-4">
-                           {formatDateToIndonesian(order.createdAt).date},{" "}
-                           {formatDateToIndonesian(order.createdAt).time}
+                           {momentInstance(order.createdAt).format("DD MMMM YYYY")}, {" "}
+                           {momentInstance(order.createdAt).format("HH:mm")}
                         </td>
                         <td className="px-6 py-4">{order.orderId}</td>
                         <td className="px-6 py-4">{order.paymentMethod}</td>

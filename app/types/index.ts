@@ -135,6 +135,7 @@ export interface UserInterface {
    username: string;
    password: string;
    role: string;
+   createdAt: string;
 }
 
 // Order Interface (related to orders transactions)
@@ -144,8 +145,8 @@ export interface OrderInterface {
    orderDetails: OrderDetailInterface[];
    total: number;
    subtotal: number;
-   paymentMethod?: string;
-   paymentStatus?: string;
+   paymentMethod: string;
+   paymentStatus: string;
 }
 
 export interface OrderDetailInterface {

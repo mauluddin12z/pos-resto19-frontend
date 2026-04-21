@@ -124,18 +124,18 @@ export default function Page() {
         {/* Mobile */}
         {IsCartOpen && (
           <Modal isOpen={IsCartOpen} onClose={closeCart}>
-            <Cart
-              orderId={orders?.data[0]?.orderId}
-              cart={cart}
-              cartItems={cart.cartItems}
-              onRemove={handleRemove}
-              onQuantityChange={handleQuantityChange}
-              onNotesChange={handleNotesChange}
-              onOrder={() => handleOrder(cart, setCart, mutate, closeCart)}
-              stockMessage={stockMessage}
-              closeCart={closeCart}
-              isSubmitting={isOrderSubmitting}
-            />
+              <Cart
+                orderId={orders?.data[0]?.orderId}
+                cart={cart}
+                cartItems={cart.cartItems}
+                onRemove={handleRemove}
+                onQuantityChange={handleQuantityChange}
+                onNotesChange={handleNotesChange}
+                onOrder={() => handleOrder(cart, setCart, mutate, closeCart)}
+                stockMessage={stockMessage}
+                closeCart={closeCart}
+                isSubmitting={isOrderSubmitting}
+              />
           </Modal>
         )}
 

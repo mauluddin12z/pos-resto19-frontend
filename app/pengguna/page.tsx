@@ -1,34 +1,43 @@
 "use client";
+
 import React, { useState } from "react";
 import MainLayout from "../components/layout/MainLayout";
 import Modal from "../components/ui/Modal";
 import { useUsers } from "../api/userServices";
-import UserTable from "../components/user/UserTable";
 import AddUserForm from "../components/user/AddUserForm";
+import { PageShell } from "../components/ui/PageShell";
+import { Plus } from "lucide-react";
+import UserTable from "../components/user/UserTable";
 
 export default function Page() {
-   const { users, isLoading: loadingUsers, mutate } = useUsers();
-   const [IsAddModalOpen, setIsAddModalOpen] = useState(false);
-   const openAddModal = () => setIsAddModalOpen(true);
-   const closeAddModal = () => setIsAddModalOpen(false);
+  const { users, isLoading, mutate } = useUsers();
 
-   return (
-      <MainLayout>
-         <div className="flex flex-col w-full gap-2 p-2 border border-gray-200 rounded-lg">
-            <div className="flex flex-wrap w-full justify-end gap-2">
-               <button
-                  onClick={openAddModal}
-                  className="flex justify-center items-center py-2.5 px-5 text-sm font-medium rounded-lg border border-gray-200 cursor-pointer text-white bg-green-600 hover:bg-green-700"
-               >
-                  Add user
-               </button>
-            </div>
-            <UserTable users={users} loading={loadingUsers} mutate={mutate} />
-         </div>
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
-         <Modal isOpen={IsAddModalOpen} onClose={closeAddModal}>
-            <AddUserForm mutate={mutate} closeAddModal={closeAddModal} />
-         </Modal>
-      </MainLayout>
-   );
+  return (
+    <MainLayout>
+      <PageShell
+        title="Pengguna"
+        description="Kelola akun staff dan hak akses"
+        actions={
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-card)] hover:opacity-90 transition cursor-pointer"
+          >
+            <Plus className="h-4 w-4" />
+            Tambah Pengguna
+          </button>
+        }
+      >
+        <UserTable users={users} loading={isLoading} mutate={mutate} />
+      </PageShell>
+
+      <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
+        <AddUserForm
+          mutate={mutate}
+          closeAddModal={() => setIsAddModalOpen(false)}
+        />
+      </Modal>
+    </MainLayout>
+  );
 }

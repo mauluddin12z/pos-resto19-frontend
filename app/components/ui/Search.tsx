@@ -4,11 +4,16 @@ import React from "react";
 interface Props {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
+  width?: string;
 }
 
-export default function Search({ searchQuery, setSearchQuery }: Props) {
+export default function Search({
+  searchQuery,
+  setSearchQuery,
+  width,
+}: Props) {
   return (
-    <div className="relative flex-1 min-w-64 max-w-md">
+    <div className={`relative flex-1 ${width ?? "min-w-64 max-w-md"}`}>
       <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <input
         type="text"

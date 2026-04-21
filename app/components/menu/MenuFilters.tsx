@@ -35,7 +35,7 @@ const MenuFilters: React.FC<Props> = ({
                 : "bg-card text-muted-foreground hover:bg-secondary hover:text-foreground"
             }`}
           >
-            All Menus
+            Semua Menu
           </button>
 
           {/* CATEGORY LIST */}
