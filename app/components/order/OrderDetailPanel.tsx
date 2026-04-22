@@ -55,6 +55,12 @@ const OrderDetailPanel = ({ order, mutate }: Props) => {
   const contentRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({ contentRef });
 
+  const statusLabel: Record<string, string> = {
+    semua: "Semua",
+    paid: "Lunas",
+    unpaid: "Belum Bayar",
+  };
+
   return (
     <>
       {/* ================= DETAIL UI (YOUR STYLE) ================= */}

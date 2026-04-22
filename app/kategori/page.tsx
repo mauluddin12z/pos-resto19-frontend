@@ -11,6 +11,8 @@ import EditCategoryForm from "../components/category/EditCategoryForm";
 import useCategoryActions from "../hooks/useCategoryActions";
 import { Pencil, Plus, Trash2, Tag } from "lucide-react";
 import { PageShell } from "../components/ui/PageShell";
+import IconButton from "../components/ui/IconButton";
+import DeleteConfirmationModal from "../components/ui/DeleteConfirmationModal";
 
 type ModalType = "add" | "edit" | "delete" | null;
 
@@ -136,12 +138,12 @@ export default function Page() {
                       Edit
                     </button>
 
-                    <button
+                    <IconButton
+                      variant="delete"
                       onClick={() => openDeleteModal(category)}
-                      className="flex h-9 w-9 items-center justify-center rounded-lg border border-destructive/30 text-destructive transition hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                      <Trash2 className="h-4 w-4" />
+                    </IconButton>
                   </div>
                 </div>
               ))
@@ -185,31 +187,13 @@ export default function Page() {
 
       {/* DELETE */}
       {activeModal === "delete" && selectedCategory && (
-        <Modal isOpen onClose={closeModal}>
-          <div>
-            <p className="text-center">
-              Are you sure you want to delete this category?
-            </p>
-
-            <div className="mt-4 flex justify-center gap-4">
-              <button
-                onClick={confirmDeleteCategory}
-                className={`rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700 ${
-                  isDeleting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                {isDeleting ? "Deleting..." : "Yes, delete"}
-              </button>
-
-              <button
-                onClick={closeModal}
-                className="rounded-md bg-gray-200 px-4 py-2 hover:bg-gray-300"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </Modal>
+        <DeleteConfirmationModal
+          isOpen={activeModal === "delete"}
+          onClose={closeModal}
+          onConfirm={confirmDeleteCategory}
+          isLoading={isDeleting}
+          message="Apakah Anda yakin ingin menghapus pengguna ini?"
+        />
       )}
     </MainLayout>
   );

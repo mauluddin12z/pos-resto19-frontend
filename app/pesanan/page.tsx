@@ -11,6 +11,7 @@ import SkeletonLoading from "../components/ui/SkeletonLoading";
 import OrderDetailPanel from "../components/order/OrderDetailPanel";
 import Search from "../components/ui/Search";
 import momentInstance from "../utils/momentConfig";
+import PaymentStatus from "../components/payment/PaymentStatus";
 
 export default function Page() {
   const [orderFilters, setOrderFilters] = useState<OrderFilterInterface>({
@@ -126,7 +127,9 @@ export default function Page() {
                           >
                             <td className="p-3 font-semibold">#{o.orderId}</td>
                             <td className="p-3 text-gray-500">
-                              {momentInstance(o.createdAt).format("DD MMMM YYYY HH:mm")}
+                              {momentInstance(o.createdAt).format(
+                                "DD MMMM YYYY HH:mm",
+                              )}
                             </td>
                             <td className="p-3">{o.user?.name}</td>
                             <td className="p-3 text-gray-500">
@@ -136,11 +139,7 @@ export default function Page() {
                               {priceFormat(o.total)}
                             </td>
                             <td className="p-3 text-center">
-                              <span
-                                className={`px-2 py-1 rounded-full font-semibold text-xs ${statusStyles[o.paymentStatus]}`}
-                              >
-                                {statusLabel[o.paymentStatus]}
-                              </span>
+                              <PaymentStatus status={o.paymentStatus} />
                             </td>
                           </tr>
                         ),

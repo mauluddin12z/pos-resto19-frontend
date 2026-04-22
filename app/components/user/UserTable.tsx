@@ -6,6 +6,8 @@ import { UserInterface } from "../../types";
 import Modal from "../ui/Modal";
 import EditUserForm from "./EditUserForm";
 import useUserActions from "@/app/hooks/useUserActions";
+import IconButton from "../ui/IconButton";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 interface UserPropsInterface {
   users: UserInterface[];
@@ -106,19 +108,13 @@ export default function UserTable({
 
         <td className="px-4 py-3">
           <div className="flex justify-end gap-1.5">
-            <button
-              onClick={() => openEdit(u)}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground transition cursor-pointer"
-            >
+            <IconButton variant="edit" onClick={() => openEdit(u)}>
               <Pencil className="h-4 w-4" />
-            </button>
+            </IconButton>
 
-            <button
-              onClick={() => openDelete(u)}
-              className="flex h-8 w-8 items-center justify-center rounded-lg border border-destructive/30 text-destructive hover:bg-destructive hover:text-destructive-foreground transition cursor-pointer"
-            >
+            <IconButton variant="delete" onClick={() => openDelete(u)}>
               <Trash2 className="h-4 w-4" />
-            </button>
+            </IconButton>
           </div>
         </td>
       </tr>
@@ -196,31 +192,13 @@ export default function UserTable({
 
       {/* DELETE MODAL */}
       {selectedUser && isDeleteOpen && (
-        <Modal isOpen={isDeleteOpen} onClose={closeDelete}>
-          <div>
-            <p className="text-center">
-              Are you sure you want to delete this user?
-            </p>
-
-            <div className="mt-4 flex justify-center gap-3">
-              <button
-                onClick={confirmDelete}
-                className={`rounded-md bg-red-600 px-4 py-2 text-white ${
-                  isDeleting ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-              >
-                {isDeleting ? "Deleting..." : "Yes, delete"}
-              </button>
-
-              <button
-                onClick={closeDelete}
-                className="rounded-md bg-gray-200 px-4 py-2"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </Modal>
+        <DeleteConfirmationModal
+          isOpen={isDeleteOpen}
+          onClose={closeDelete}
+          onConfirm={confirmDelete}
+          isLoading={isDeleting}
+          message="Apakah Anda yakin ingin menghapus pengguna ini?"
+        />
       )}
     </>
   );

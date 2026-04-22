@@ -1,23 +1,27 @@
-const statusStyles: { [key: string]: string } = {
-   paid: "bg-green-100 text-green-600",
-   unpaid: "bg-red-100 text-red-600",
-   unknown: "bg-gray-100 text-gray-600", // Added fallback style for unknown status
+const statusLabel: Record<string, string> = {
+  semua: "Semua",
+  paid: "Lunas",
+  unpaid: "Belum Bayar",
+};
+
+const statusStyles: Record<string, string> = {
+  paid: "bg-green-100 text-green-700",
+  unpaid: "bg-yellow-100 text-yellow-700",
 };
 
 const PaymentStatus: React.FC<{ status: string | undefined }> = ({
-   status,
+  status,
 }) => {
-   // Provide a fallback if status is undefined
-   const statusKey = status ?? "unknown"; // Default to "unknown" if status is undefined
+  // Provide a fallback if status is undefined
+  const statusKey = status ?? "unknown"; // Default to "unknown" if status is undefined
 
-   return (
-      <div
-         className={`text-xs border rounded-full font-semibold px-3.5 py-1.5 ${statusStyles[statusKey]}`}
-      >
-         {status || "Unknown"}
-      </div>
-   );
+  return (
+    <span
+      className={`px-2 py-1 rounded-full font-semibold text-xs ${statusStyles[statusKey]}`}
+    >
+      {statusLabel[statusKey]}
+    </span>
+  );
 };
 
-
-export default PaymentStatus
+export default PaymentStatus;
