@@ -9,12 +9,12 @@ import PaymentSuccessful from "../payment/PaymentSuccessful";
 import ActionButtons from "./ActionButtons";
 import PaymentModal from "../payment/PaymentModal";
 import EditOrderModal from "./EditOrderModal";
-import Modal from "../ui/Modal";
 import useOrderActions from "@/app/hooks/useOrderActions";
 import Invoice from "../invoice/Invoice";
 import { useReactToPrint } from "react-to-print";
 import moment from "moment";
 import momentInstance from "@/app/utils/momentConfig";
+import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 interface Props {
   order: OrderInterface & { user: UserInterface };
@@ -47,9 +47,12 @@ const OrderDetailPanel = ({ order, mutate }: Props) => {
   const openEdit = () => setModalState({ type: "edit", isOpen: true });
 
   const openDelete = () => setModalState({ type: "delete", isOpen: true });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const confirmDelete = async () => {
+    setIsDeleting(true);
     await handleDeleteOrder(order.orderId, mutate, closeModal);
+    setIsDeleting(false);
   };
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -174,27 +177,13 @@ const OrderDetailPanel = ({ order, mutate }: Props) => {
 
       {/* ================= DELETE ================= */}
       {modalState?.type === "delete" && (
-        <Modal isOpen={modalState.isOpen} onClose={closeModal}>
-          <div className="text-center">
-            <p>Delete this order?</p>
-
-            <div className="flex justify-center gap-3 mt-4">
-              <button
-                onClick={confirmDelete}
-                className="bg-red-600 text-white px-4 py-2 rounded-lg"
-              >
-                Delete
-              </button>
-
-              <button
-                onClick={closeModal}
-                className="bg-gray-200 px-4 py-2 rounded-lg"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </Modal>
+        <DeleteConfirmationModal
+          isOpen={modalState.isOpen}
+          onClose={closeModal}
+          onConfirm={confirmDelete}
+          isLoading={isDeleting}
+          message="Apakah Anda yakin ingin menghapus menu ini?"
+        />
       )}
 
       {/* ================= SUCCESS ================= */}

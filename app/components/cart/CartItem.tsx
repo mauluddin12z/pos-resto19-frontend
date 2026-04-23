@@ -1,10 +1,7 @@
 import { CartItemPropsInterface } from "@/app/types";
 import { priceFormat } from "@/app/utils/priceFormat";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image, { ImageLoader } from "next/image";
 import React from "react";
-import QuantityControl from "./QuantityControl";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
 export default function CartItem({
@@ -14,9 +11,6 @@ export default function CartItem({
   onNotesChange,
   onRemove,
 }: CartItemPropsInterface) {
-  const myLoader: ImageLoader = ({ src }) => {
-    return src;
-  };
 
   const handleIncrement = (id: number, qty: number) => {
     onQuantityChange(id, qty + 1);
@@ -36,7 +30,6 @@ export default function CartItem({
         {item.imageUrl && (
           <Image
             className="h-12 w-12 rounded-lg object-cover"
-            loader={myLoader}
             src={item.imageUrl ?? "no-image.png"}
             width={500}
             height={500}

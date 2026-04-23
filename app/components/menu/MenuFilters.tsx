@@ -29,10 +29,10 @@ const MenuFilters: React.FC<Props> = ({
           {/* ALL MENUS */}
           <button
             onClick={() => onCategoryClick(null)}
-            className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
               activeCategoryId === null
-                ? "bg-primary text-primary-foreground shadow-(--shadow-card)"
-                : "bg-card text-muted-foreground hover:bg-secondary hover:text-foreground"
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-muted-foreground hover:text-foreground"
             }`}
           >
             Semua Menu
@@ -46,10 +46,10 @@ const MenuFilters: React.FC<Props> = ({
               <button
                 key={cat.categoryId}
                 onClick={() => onCategoryClick(cat.categoryId)}
-                className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all cursor-pointer ${
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors cursor-pointer ${
                   active
-                    ? "bg-primary text-primary-foreground shadow-(--shadow-card)"
-                    : "bg-card text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {cat.categoryName}

@@ -26,7 +26,6 @@ export default function ProductCard({
   cart,
   onQuantityChange,
 }: ProductCardPropsInterface) {
-  const myLoader: ImageLoader = ({ src }) => src;
   const cartItem = cart.cartItems.find((item) => item.id === id);
   const quantity = cartItem?.quantity ?? 0;
 
@@ -62,7 +61,6 @@ export default function ProductCard({
       {/* IMAGE */}
       <div className="aspect-square overflow-hidden rounded-xl bg-secondary">
         <Image
-          loader={myLoader}
           src={productImageUrl ?? "no-image.png"}
           alt={productName}
           width={500}

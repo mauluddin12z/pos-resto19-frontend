@@ -3,8 +3,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import Modal from "../ui/Modal";
 import { OrderInterface, CartItemInterface } from "../../types";
 import useCart from "@/app/hooks/useCart";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCartShopping } from "@fortawesome/free-solid-svg-icons";
 import CartItem from "../cart/CartItem";
 import { priceFormat } from "@/app/utils/priceFormat";
 import useOrderActions from "@/app/hooks/useOrderActions";
@@ -88,8 +86,8 @@ const EditOrderModal = ({
       <Modal isOpen={isOpen} onClose={onClose}>
         <div className="w-full h-full overflow-y-auto flex flex-col border border-gray-200 lg:rounded-lg px-4 bg-white">
           <div className="flex justify-between mb-2 pb-2 border-b border-gray-200 gap-x-2 items-center sticky top-0 bg-white pt-4">
-            <h2 className="text-lg font-semibold">
-              <FontAwesomeIcon icon={faCartShopping} />
+            <h2 className="flex justify-center gap-4 text-lg font-semibold">
+              <ShoppingCart />
               Edit Pesanan #{selectedOrder.orderId}
             </h2>
             <button

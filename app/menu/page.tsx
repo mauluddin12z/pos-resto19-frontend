@@ -1,16 +1,50 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
+import { Pencil, Plus, Trash2, UtensilsCrossed } from "lucide-react";
 import MainLayout from "../components/layout/MainLayout";
 import { useMenus } from "../api/menuServices";
 import Pagination from "../components/ui/Pagination";
 import Modal from "../components/ui/Modal";
-import AddMenuForm from "../components/menu/AddMenuForm";
 import { useCategories } from "../api/categoryServices";
 import { PageShell } from "../components/ui/PageShell";
 import MenuTable from "../components/menu/MenuTable";
 import Search from "../components/ui/Search";
-import { CategoryInterface } from "../types";
+import { CategoryInterface, MenuFormInterface, MenuInterface } from "../types";
+import MenuForm from "../components/menu/MenuForm";
+import useMenuActions from "../hooks/useMenuActions";
+import { priceFormat } from "../utils/priceFormat";
+import LoadingButton from "../components/ui/LoadingButton";
+import { useDebounce } from "../hooks/useDebounce";
+
+type DialogState =
+  | { mode: "closed" }
+  | { mode: "create" }
+  | { mode: "edit"; record: MenuInterface }
+  | { mode: "delete"; record: MenuInterface };
+
+type FormErrors = Partial<Record<keyof MenuFormInterface, string>>;
+
+const emptyForm: MenuFormInterface = {
+  menuId: "",
+  menuName: "",
+  categoryId: "",
+  menuDescription: "",
+  stock: "0",
+  price: "0",
+  menuImage: null as File | null,
+  imagePreview: "",
+};
+
+const mapMenuToForm = (record: MenuInterface): MenuFormInterface => ({
+  menuId: String(record.menuId),
+  menuName: record.menuName,
+  menuDescription: record.menuDescription ?? "",
+  categoryId: String(record.categoryId),
+  price: String(record.price),
+  stock: String(record.stock),
+  menuImage: null,
+  imagePreview: record.menuImageUrl ?? "",
+});
 
 export default function Page() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,16 +61,107 @@ export default function Page() {
     pageSize: 100,
   });
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setFilters((prev) => ({ ...prev, searchQuery, page: 1 }));
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [searchQuery]);
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const openAddModal = () => setIsAddModalOpen(true);
-  const closeAddModal = () => setIsAddModalOpen(false);
+  useEffect(() => {
+    setFilters((prev) => {
+      if (prev.searchQuery === debouncedSearch) return prev;
+      return { ...prev, searchQuery: debouncedSearch, page: 1 };
+    });
+  }, [debouncedSearch]);
+
+  const [dialog, setDialog] = useState<DialogState>({ mode: "closed" });
+  const [formData, setFormData] = useState(emptyForm);
+
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
+
+  const openCreate = () => {
+    setFormData(emptyForm);
+    setFormErrors({});
+    setDialog({ mode: "create" });
+  };
+
+  const openEdit = (record: MenuInterface) => {
+    setFormData(mapMenuToForm(record));
+    setFormErrors({});
+    setDialog({ mode: "edit", record });
+  };
+  const openDelete = (record: MenuInterface) => {
+    setFormData(mapMenuToForm(record));
+    setFormErrors({});
+    setDialog({ mode: "delete", record });
+  };
+
+  const close = () => setDialog({ mode: "closed" });
+
+  // Handle input change
+  const handleChange = useCallback((e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  // Handle file input (for image)
+  const handleFileChange = (e: any) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setFormData((prev) => {
+      if (prev.imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(prev.imagePreview);
+      }
+
+      return {
+        ...prev,
+        menuImage: file,
+        imagePreview: URL.createObjectURL(file),
+      };
+    });
+  };
+  useEffect(() => {
+    return () => {
+      if (formData.imagePreview?.startsWith("blob:")) {
+        URL.revokeObjectURL(formData.imagePreview);
+      }
+    };
+  }, [formData.imagePreview]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle form submission
+
+  const { handleAddMenu, handleEditMenu, handleDeleteMenu } = useMenuActions();
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (dialog.mode === "create") {
+      await handleAddMenu({
+        formData,
+        setIsSubmitting,
+        setFormErrors,
+        closeAddModal: close,
+        mutate,
+      });
+    } else if (dialog.mode === "edit") {
+      await handleEditMenu({
+        menuId: Number(formData.menuId),
+        formData,
+        setIsSubmitting,
+        setFormErrors,
+        closeEditModal: close,
+        mutate,
+      });
+    }
+  };
+
+  const submitDeleteMenu = async () => {
+    await handleDeleteMenu({
+      menuId: Number(formData.menuId),
+      setIsDeleting: setIsSubmitting,
+      closeDeleteModal: close,
+      mutate,
+    });
+  };
+
   return (
     <MainLayout>
       <PageShell
@@ -44,22 +169,22 @@ export default function Page() {
         description="Kelola daftar menu dan harga produk"
         actions={
           <button
-            onClick={openAddModal}
+            onClick={openCreate}
             className="flex items-center gap-1 rounded-lg bg-primary hover:opacity-90 px-3 py-2 text-sm font-semibold text-white cursor-pointer transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
-            Tambah Kategori
+            Tambah Menu
           </button>
         }
       >
         <div className="rounded-2xl border bg-card shadow">
           {/* CATEGORY FILTER */}
           <div className="flex flex-wrap items-center gap-3 border-b border-border p-4">
-              <Search
-                searchQuery={searchQuery}
-                setSearchQuery={setSearchQuery}
-                width="min-w-56"
-              />
+            <Search
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              width="min-w-56"
+            />
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() =>
@@ -99,7 +224,12 @@ export default function Page() {
             </div>
           </div>
           {/* TABLE */}
-          <MenuTable menus={menus?.data} loading={isLoading} mutate={mutate} />
+          <MenuTable
+            menus={menus?.data}
+            loading={isLoading}
+            openEdit={openEdit}
+            openDelete={openDelete}
+          />
           <div className="py-4 flex justify-center">
             {/* PAGINATION */}
             <Pagination
@@ -114,9 +244,119 @@ export default function Page() {
           </div>
         </div>
 
-        {/* MODAL */}
-        <Modal isOpen={isAddModalOpen} onClose={() => closeAddModal()}>
-          <AddMenuForm mutate={mutate} closeAddModal={() => closeAddModal()} />
+        {/* MODAL ADD / EDIT */}
+        <Modal
+          isOpen={dialog.mode === "create" || dialog.mode === "edit"}
+          onClose={close}
+          title={dialog.mode === "create" ? "Tambah Menu" : "Edit Menu"}
+          description={
+            dialog.mode === "create"
+              ? "Tambahkan produk baru ke daftar menu"
+              : "Edit informasi produk"
+          }
+          icon={
+            dialog.mode === "create" ? (
+              <UtensilsCrossed className="h-5 w-5" />
+            ) : (
+              <Pencil className="h-5 w-5" />
+            )
+          }
+          size="lg"
+          footer={
+            <>
+              <button
+                type="button"
+                onClick={close}
+                className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="submit"
+                form="menu-form"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-card)] transition-opacity hover:opacity-90 cursor-pointer"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <div className="flex gap-x-2">
+                    <LoadingButton /> Loading
+                  </div>
+                ) : dialog.mode === "create" ? (
+                  "Tambah Menu"
+                ) : dialog.mode === "edit" ? (
+                  "Simpan Perubahan"
+                ) : (
+                  "Submit"
+                )}
+              </button>
+            </>
+          }
+        >
+          <MenuForm
+            formData={formData}
+            formErrors={formErrors}
+            handleChange={handleChange}
+            handleFileChange={handleFileChange}
+            handleSubmit={handleSubmit}
+            isDisable={isSubmitting}
+          />
+        </Modal>
+
+        {/* Delete confirmation */}
+        <Modal
+          isOpen={dialog.mode === "delete"}
+          onClose={close}
+          title="Hapus Menu"
+          description="Tindakan ini tidak dapat dibatalkan"
+          icon={<Trash2 className="h-5 w-5" />}
+          size="sm"
+          footer={
+            <>
+              <button
+                type="button"
+                onClick={close}
+                className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => submitDeleteMenu()}
+                className="inline-flex items-center gap-2 rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground shadow-[var(--shadow-card)] transition-opacity hover:opacity-90 cursor-pointer"
+              >
+                {isSubmitting ? (
+                  <div className="flex gap-x-2">
+                    <LoadingButton /> Loading
+                  </div>
+                ) : (
+                  <div className="flex gap-x-2">
+                    <Trash2 className="h-4 w-4" /> Hapus
+                  </div>
+                )}
+              </button>
+            </>
+          }
+        >
+          {dialog.mode === "delete" && (
+            <div className="flex items-center gap-4">
+              {dialog.record.menuImageUrl && (
+                <img
+                  src={dialog.record.menuImageUrl}
+                  alt={dialog.record.menuName}
+                  className="h-16 w-16 shrink-0 rounded-xl object-cover"
+                />
+              )}
+              <div>
+                <p className="font-semibold">{dialog.record.menuName}</p>
+                <p className="text-sm text-muted-foreground">
+                  {priceFormat(dialog.record.price)}
+                </p>
+                <p className="mt-2 text-sm text-foreground">
+                  Yakin ingin menghapus menu ini?
+                </p>
+              </div>
+            </div>
+          )}
         </Modal>
       </PageShell>
     </MainLayout>

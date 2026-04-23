@@ -17,7 +17,7 @@ const PaymentStatus: React.FC<{ status: string | undefined }> = ({
 
   return (
     <span
-      className={`px-2 py-1 rounded-full font-semibold text-xs ${statusStyles[statusKey]}`}
+      className={`px-2 py-1 rounded-full font-semibold text-xs text-nowrap ${statusStyles[statusKey]}`}
     >
       {statusLabel[statusKey]}
     </span>

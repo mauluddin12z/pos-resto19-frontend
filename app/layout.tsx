@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Roboto from "next/font/local";
 import "./globals.css";
-import "./utils/fontawesome";
 import { AlertProvider } from "./context/AlertContext";
 import { AuthProvider } from "./context/AuthContext";
 

@@ -9,6 +9,7 @@ export interface MenuGridPropsInterface {
   onAddToCart: (product: ProductInterface) => void;
   cart: CartInterface;
   onQuantityChange: (id: number, quantity: number) => void;
+  grid?: string;
 }
 const MenuGrid: React.FC<MenuGridPropsInterface> = ({
   menus,
@@ -16,6 +17,7 @@ const MenuGrid: React.FC<MenuGridPropsInterface> = ({
   onAddToCart,
   cart,
   onQuantityChange,
+  grid,
 }) => {
   if (loading) {
     return (
@@ -56,7 +58,9 @@ const MenuGrid: React.FC<MenuGridPropsInterface> = ({
       </div>
     );
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-2">
+    <div
+      className={`grid gap-2 ${grid ?? "grid-cols-2 md:grid-cols-3 xl:grid-cols-6"}`}
+    >
       {menus?.map((menu, index) => (
         <ProductCard
           key={index}

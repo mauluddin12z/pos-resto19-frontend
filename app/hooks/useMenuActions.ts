@@ -1,203 +1,202 @@
 import { createMenu, updateMenu, deleteMenu } from "@/app/api/menuServices";
-import { AddMenuFormInterface, EditMenuFormInterface } from "@/app/types";
 import { useGlobalAlert } from "../context/AlertContext";
+import { MenuFormInterface } from "../types";
 
 /**
  * Custom hook to manage Menu-related actions
  */
 const useMenuActions = () => {
-   const { showAlert } = useGlobalAlert();
+  const { showAlert } = useGlobalAlert();
 
-   /**
-    * Validates menu form data and returns error messages
-    */
-   const validateMenuForm = (formData: {
-      menuName: string;
-      categoryId: string | number | null;
-      stock: number;
-      price: number;
-   }) => {
-      const errors = {
-         menuName: "",
-         categoryId: "",
-         stock: "",
-         price: "",
-      };
+  /**
+   * Validates menu form data and returns error messages
+   */
+  const validateMenuForm = (formData: MenuFormInterface) => {
+    const errors = {
+      menuName: "",
+      categoryId: "",
+      stock: "",
+      price: "",
+    };
 
-      if (!formData.menuName.trim()) errors.menuName = "Menu name is required.";
-      if (!formData.categoryId) errors.categoryId = "Category is required.";
-      if (formData.stock == null || formData.stock < 0)
-         errors.stock = "Stock must be equal to or greater than 0.";
-      if (formData.price == null || formData.price < 0)
-         errors.price = "Price must be equal to or greater than 0.";
+    console.log(formData)
+    const stock = Number(formData.stock);
+    const price = Number(formData.price);
 
-      return errors;
-   };
+    if (!formData.menuName.trim()) {
+      errors.menuName = "Nama menu wajib diisi.";
+    }
 
-   /**
-    * Handles adding a new menu
-    */
-   const handleAddMenu = async ({
-      formData,
-      setIsSubmitting,
-      closeAddModal,
-      mutate,
-      setFormErrors,
-   }: {
-      formData: AddMenuFormInterface;
-      setIsSubmitting: (val: boolean) => void;
-      closeAddModal: () => void;
-      mutate: () => void;
-      setFormErrors: (errors: any) => void;
-   }) => {
-      setIsSubmitting(true);
+    if (!formData.categoryId) {
+      errors.categoryId = "Kategori wajib dipilih.";
+    }
 
-      const validationErrors = validateMenuForm(formData);
-      setFormErrors(validationErrors);
+    if (isNaN(stock) || stock <= 0) {
+      errors.stock = "Stok harus bernilai 0 atau lebih.";
+    }
 
-      const hasErrors = Object.values(validationErrors).some((e) => e !== "");
-      if (hasErrors) {
-         setIsSubmitting(false);
-         return;
+    if (isNaN(price) || price <= 0) {
+      errors.price = "Harga harus bernilai 0 atau lebih.";
+    }
+
+    return errors;
+  };
+
+  /**
+   * Handles adding a new menu
+   */
+  const handleAddMenu = async ({
+    formData,
+    setIsSubmitting,
+    closeAddModal,
+    mutate,
+    setFormErrors,
+  }: {
+    formData: MenuFormInterface;
+    setIsSubmitting: (val: boolean) => void;
+    closeAddModal: () => void;
+    mutate: () => void;
+    setFormErrors: (errors: any) => void;
+  }) => {
+    setIsSubmitting(true);
+
+    const validationErrors = validateMenuForm(formData);
+    setFormErrors(validationErrors);
+
+    const hasErrors = Object.values(validationErrors).some((e) => e !== "");
+    if (hasErrors) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("menuName", formData.menuName);
+      formDataToSend.append("categoryId", formData.categoryId ?? "");
+      formDataToSend.append("menuDescription", formData.menuDescription ?? "");
+      formDataToSend.append("stock", formData.stock);
+      formDataToSend.append("price", formData.price);
+
+      if (formData.menuImage instanceof File) {
+        formDataToSend.append("menuImage", formData.menuImage);
       }
 
-      try {
-         const formDataToSend = new FormData();
-         formDataToSend.append("menuName", formData.menuName);
-         formDataToSend.append(
-            "categoryId",
-            formData.categoryId?.toString() ?? ""
-         );
-         formDataToSend.append(
-            "menuDescription",
-            formData.menuDescription ?? ""
-         );
-         formDataToSend.append("stock", formData.stock.toString());
-         formDataToSend.append("price", formData.price.toString());
+      const res = await createMenu(formDataToSend);
 
-         if (formData.menuImage instanceof File) {
-            formDataToSend.append("menuImage", formData.menuImage);
-         }
+      showAlert({
+        type: "success",
+        message: res?.message || "Menu successfully created!",
+      });
+    } catch (error: any) {
+      showAlert({
+        type: "error",
+        message: error?.response?.data?.message ?? error.message,
+      });
+    } finally {
+      mutate();
+      closeAddModal();
+      setIsSubmitting(false);
+    }
+  };
 
-         const res = await createMenu(formDataToSend);
+  /**
+   * Handles editing an existing menu
+   */
+  const handleEditMenu = async ({
+    menuId,
+    formData,
+    closeEditModal,
+    setIsSubmitting,
+    mutate,
+    setFormErrors,
+  }: {
+    menuId: number;
+    formData: MenuFormInterface;
+    closeEditModal: () => void;
+    setIsSubmitting: (val: boolean) => void;
+    mutate: () => void;
+    setFormErrors: (errors: any) => void;
+  }) => {
+    setIsSubmitting(true);
 
-         showAlert({
-            type: "success",
-            message: res?.message || "Menu successfully created!",
-         });
-      } catch (error: any) {
-         showAlert({
-            type: "error",
-            message: error?.response?.data?.message ?? error.message,
-         });
-      } finally {
-         mutate();
-         closeAddModal();
-         setIsSubmitting(false);
-      }
-   };
+    const validationErrors = validateMenuForm(formData);
+    setFormErrors(validationErrors);
 
-   /**
-    * Handles editing an existing menu
-    */
-   const handleEditMenu = async ({
-      menuId,
-      formData,
-      closeEditModal,
-      setIsSubmitting,
-      mutate,
-      setFormErrors,
-   }: {
-      menuId: number;
-      formData: EditMenuFormInterface;
-      closeEditModal: () => void;
-      setIsSubmitting: (val: boolean) => void;
-      mutate: () => void;
-      setFormErrors: (errors: any) => void;
-   }) => {
-      setIsSubmitting(true);
+    const hasErrors = Object.values(validationErrors).some((e) => e !== "");
+    if (hasErrors) {
+      setIsSubmitting(false);
+      return;
+    }
 
-      const validationErrors = validateMenuForm(formData);
-      setFormErrors(validationErrors);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("menuName", formData.menuName);
+      formDataToSend.append("menuDescription", formData.menuDescription);
+      formDataToSend.append("categoryId", formData.categoryId || "");
+      formDataToSend.append("price", formData.price.toString());
+      formDataToSend.append("stock", formData.stock.toString());
 
-      const hasErrors = Object.values(validationErrors).some((e) => e !== "");
-      if (hasErrors) {
-         setIsSubmitting(false);
-         return;
+      if (formData.menuImage instanceof File) {
+        formDataToSend.append("menuImage", formData.menuImage);
       }
 
-      try {
-         const formDataToSend = new FormData();
-         formDataToSend.append("menuName", formData.menuName);
-         formDataToSend.append("menuDescription", formData.menuDescription);
-         formDataToSend.append(
-            "categoryId",
-            formData.categoryId?.toString() || ""
-         );
-         formDataToSend.append("price", formData.price.toString());
-         formDataToSend.append("stock", formData.stock.toString());
+      const res = await updateMenu(menuId, formDataToSend);
 
-         if (formData.menuImage instanceof File) {
-            formDataToSend.append("menuImage", formData.menuImage);
-         }
+      showAlert({
+        type: "success",
+        message: res?.message || "Menu updated successfully!",
+      });
+    } catch (error: any) {
+      showAlert({
+        type: "error",
+        message: error?.response?.data?.message ?? error.message,
+      });
+    } finally {
+      mutate();
+      closeEditModal();
+      setIsSubmitting(false);
+    }
+  };
 
-         const res = await updateMenu(menuId, formDataToSend);
+  /**
+   * Handles deleting a menu item
+   */
+  const handleDeleteMenu = async ({
+    menuId,
+    setIsDeleting,
+    closeDeleteModal,
+    mutate,
+  }: {
+    menuId: number;
+    setIsDeleting: (val: boolean) => void;
+    closeDeleteModal: () => void;
+    mutate: () => void;
+  }) => {
+    setIsDeleting(true);
 
-         showAlert({
-            type: "success",
-            message: res?.message || "Menu updated successfully!",
-         });
-      } catch (error: any) {
-         showAlert({
-            type: "error",
-            message: error?.response?.data?.message ?? error.message,
-         });
-      } finally {
-         mutate();
-         closeEditModal();
-         setIsSubmitting(false);
-      }
-   };
+    try {
+      const res = await deleteMenu(menuId);
+      showAlert({
+        type: "success",
+        message: res?.message || "Menu deleted successfully!",
+      });
+    } catch (error: any) {
+      showAlert({
+        type: "error",
+        message: error?.response?.data?.message ?? error.message,
+      });
+    } finally {
+      mutate();
+      setIsDeleting(false);
+      closeDeleteModal();
+    }
+  };
 
-   /**
-    * Handles deleting a menu item
-    */
-   const handleDeleteMenu = async ({
-      menuId,
-      setIsDeleting,
-      closeDeleteModal,
-      mutate,
-   }: {
-      menuId: number;
-      setIsDeleting: (val: boolean) => void;
-      closeDeleteModal: () => void;
-      mutate: () => void;
-   }) => {
-      setIsDeleting(true);
-
-      try {
-         const res = await deleteMenu(menuId);
-         showAlert({
-            type: "success",
-            message: res?.message || "Menu deleted successfully!",
-         });
-      } catch (error: any) {
-         showAlert({
-            type: "error",
-            message: error?.response?.data?.message ?? error.message,
-         });
-      } finally {
-         mutate();
-         setIsDeleting(false);
-         closeDeleteModal();
-      }
-   };
-
-   return {
-      handleAddMenu,
-      handleEditMenu,
-      handleDeleteMenu,
-   };
+  return {
+    handleAddMenu,
+    handleEditMenu,
+    handleDeleteMenu,
+  };
 };
 
 export default useMenuActions;

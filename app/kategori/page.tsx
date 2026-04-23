@@ -13,6 +13,7 @@ import { Pencil, Plus, Trash2, Tag } from "lucide-react";
 import { PageShell } from "../components/ui/PageShell";
 import IconButton from "../components/ui/IconButton";
 import DeleteConfirmationModal from "../components/ui/DeleteConfirmationModal";
+import { useDebounce } from "../hooks/useDebounce";
 
 type ModalType = "add" | "edit" | "delete" | null;
 
@@ -31,13 +32,14 @@ export default function Page() {
     mutate,
   } = useCategories(filters);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setFilters((prev) => ({ ...prev, searchQuery, page: 1 }));
-    }, 300);
+  const debouncedSearch = useDebounce(searchQuery, 300);
 
-    return () => clearTimeout(timeout);
-  }, [searchQuery]);
+  useEffect(() => {
+    setFilters((prev) => {
+      if (prev.searchQuery === debouncedSearch) return prev;
+      return { ...prev, searchQuery: debouncedSearch, page: 1 };
+    });
+  }, [debouncedSearch]);
 
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page }));

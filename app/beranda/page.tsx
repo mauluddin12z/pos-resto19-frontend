@@ -14,6 +14,7 @@ import Cart from "../components/cart/Cart";
 import ShowCartModalButton from "../components/cart/ShowCartModalButton";
 import useOrderActions from "../hooks/useOrderActions";
 import { useCategories } from "../api/categoryServices";
+import { useDebounce } from "../hooks/useDebounce";
 
 export default function Page() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -46,13 +47,14 @@ export default function Page() {
     setFilters((prev) => ({ ...prev, page }));
   };
 
-  // Debounce search query update
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setFilters((prev) => ({ ...prev, searchQuery, page: 1 }));
-    }, 300);
-    return () => clearTimeout(timeout);
-  }, [searchQuery]);
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
+useEffect(() => {
+  setFilters((prev) => {
+    if (prev.searchQuery === debouncedSearch) return prev;
+    return { ...prev, searchQuery: debouncedSearch, page: 1 };
+  });
+}, [debouncedSearch]);
 
   const {
     cart,
@@ -124,18 +126,18 @@ export default function Page() {
         {/* Mobile */}
         {IsCartOpen && (
           <Modal isOpen={IsCartOpen} onClose={closeCart}>
-              <Cart
-                orderId={orders?.data[0]?.orderId}
-                cart={cart}
-                cartItems={cart.cartItems}
-                onRemove={handleRemove}
-                onQuantityChange={handleQuantityChange}
-                onNotesChange={handleNotesChange}
-                onOrder={() => handleOrder(cart, setCart, mutate, closeCart)}
-                stockMessage={stockMessage}
-                closeCart={closeCart}
-                isSubmitting={isOrderSubmitting}
-              />
+            <Cart
+              orderId={orders?.data[0]?.orderId}
+              cart={cart}
+              cartItems={cart.cartItems}
+              onRemove={handleRemove}
+              onQuantityChange={handleQuantityChange}
+              onNotesChange={handleNotesChange}
+              onOrder={() => handleOrder(cart, setCart, mutate, closeCart)}
+              stockMessage={stockMessage}
+              closeCart={closeCart}
+              isSubmitting={isOrderSubmitting}
+            />
           </Modal>
         )}
 

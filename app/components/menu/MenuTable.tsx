@@ -1,65 +1,23 @@
 import React, { useState, useCallback, useMemo } from "react";
 import { MenuInterface } from "../../types";
-import Image, { ImageLoader } from "next/image";
+import Image from "next/image";
 import { priceFormat } from "../../utils/priceFormat";
-import Modal from "../ui/Modal";
-import EditMenuForm from "./EditMenuForm";
-import useMenuActions from "@/app/hooks/useMenuActions";
 import { Pencil, Trash2 } from "lucide-react";
 import IconButton from "../ui/IconButton";
-import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 export interface MenuPropsInterface {
   menus: MenuInterface[];
   loading: boolean;
-  mutate: () => void;
+  openEdit: (menu: MenuInterface) => void;
+  openDelete: (menu: MenuInterface) => void;
 }
 
 export default function MenuTable({
   menus,
   loading,
-  mutate,
+  openEdit,
+  openDelete,
 }: MenuPropsInterface) {
-  const myLoader: ImageLoader = ({ src }) => src;
-
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedMenu, setSelectedMenu] = useState<MenuInterface | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const { handleDeleteMenu } = useMenuActions();
-
-  const openEditModal = useCallback((menu: MenuInterface) => {
-    setSelectedMenu(menu);
-    setIsEditModalOpen(true);
-  }, []);
-
-  const closeEditModal = useCallback(() => {
-    setSelectedMenu(null);
-    setIsEditModalOpen(false);
-  }, []);
-
-  const openDeleteModal = useCallback((menu: MenuInterface) => {
-    setSelectedMenu(menu);
-    setIsDeleteModalOpen(true);
-  }, []);
-
-  const closeDeleteModal = useCallback(() => {
-    setSelectedMenu(null);
-    setIsDeleteModalOpen(false);
-  }, []);
-
-  const confirmDeleteMenu = useCallback(async () => {
-    if (!selectedMenu?.menuId) return;
-
-    await handleDeleteMenu({
-      menuId: selectedMenu.menuId,
-      setIsDeleting,
-      closeDeleteModal,
-      mutate,
-    });
-  }, [selectedMenu, setIsDeleting, closeDeleteModal, mutate]);
-
   const tableContent = useMemo(
     () =>
       menus?.map((m: MenuInterface) => (
@@ -71,7 +29,6 @@ export default function MenuTable({
             <div className="flex items-center gap-3">
               {m.menuImageUrl && (
                 <Image
-                  loader={myLoader}
                   src={m.menuImageUrl ?? "no-image.png"}
                   alt={m.menuName}
                   width={44}
@@ -115,18 +72,18 @@ export default function MenuTable({
 
           <td className="px-4 py-3">
             <div className="flex justify-end gap-1.5">
-              <IconButton variant="edit" onClick={() => openEditModal(m)}>
+              <IconButton variant="edit" onClick={() => openEdit(m)}>
                 <Pencil className="h-4 w-4" />
               </IconButton>
 
-              <IconButton variant="delete" onClick={() => openDeleteModal(m)}>
+              <IconButton variant="delete" onClick={() => openDelete(m)}>
                 <Trash2 className="h-4 w-4" />
               </IconButton>
             </div>
           </td>
         </tr>
       )),
-    [menus, openEditModal, openDeleteModal],
+    [menus, openEdit, openDelete],
   );
 
   return (
@@ -160,28 +117,6 @@ export default function MenuTable({
           )}
         </tbody>
       </table>
-
-      {/* EDIT MODAL */}
-      {selectedMenu && isEditModalOpen && (
-        <Modal isOpen={isEditModalOpen} onClose={closeEditModal}>
-          <EditMenuForm
-            menuId={selectedMenu.menuId}
-            closeEditModal={closeEditModal}
-            mutate={mutate}
-          />
-        </Modal>
-      )}
-
-      {/* DELETE MODAL */}
-      {selectedMenu && isDeleteModalOpen && (
-        <DeleteConfirmationModal
-          isOpen={isDeleteModalOpen}
-          onClose={closeDeleteModal}
-          onConfirm={confirmDeleteMenu}
-          isLoading={isDeleting}
-          message="Apakah Anda yakin ingin menghapus menu ini?"
-        />
-      )}
     </div>
   );
 }

@@ -1,93 +1,71 @@
 import React from "react";
-import { OrderInterface } from "../../types";
-import { priceFormat } from "../../utils/priceFormat";
+import SkeletonLoading from "../ui/SkeletonLoading";
+import { OrderInterface, UserInterface } from "@/app/types";
 import momentInstance from "@/app/utils/momentConfig";
-
-interface OrderTableProps {
-   orders: OrderInterface[];
-   loading: boolean;
-   onEdit: (order: OrderInterface) => void;
-   onDelete: (order: OrderInterface) => void;
+import { priceFormat } from "@/app/utils/priceFormat";
+import PaymentStatus from "../payment/PaymentStatus";
+export interface OrderTableInterface {
+  orders: (OrderInterface & { user: UserInterface })[];
+  isLoading: boolean;
+  selectedOrderId: number | null;
+  setSelectedOrderId: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
-const OrderTable: React.FC<OrderTableProps> = ({
-   orders,
-   loading,
-   onEdit,
-   onDelete,
-}) => {
-   return (
-      <div className="relative overflow-x-auto sm:rounded-lg">
-         <table className="w-full text-sm text-left rtl:text-right text-gray-500">
-            <thead className="text-xs text-gray-700 bg-gray-50 font-semibold">
-               <tr>
-                  <th scope="col" className="px-6 py-3">
-                     Date
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                     Order ID
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                     Payment Method
-                  </th>
-                  <th scope="col" className="px-6 py-3">
-                     Total Amount
-                  </th>
-                  <th
-                     scope="col"
-                     className="px-6 py-3 bg-gray-50 sticky right-0 text-center"
-                  >
-                     Action
-                  </th>
-               </tr>
-            </thead>
-            <tbody>
-               {loading ? (
-                  <tr>
-                     <td colSpan={5} className="px-6 py-4 text-center">
-                        <div className="flex justify-center items-center">
-                           Loading...
-                        </div>
-                     </td>
-                  </tr>
-               ) : (
-                  orders.map((order, index) => (
-                     <tr
-                        key={index}
-                        className="bg-white border-gray-200 border-b font-semibold"
-                     >
-                        <td className="px-6 py-4">
-                           {momentInstance(order.createdAt).format("DD MMMM YYYY")}, {" "}
-                           {momentInstance(order.createdAt).format("HH:mm")}
-                        </td>
-                        <td className="px-6 py-4">{order.orderId}</td>
-                        <td className="px-6 py-4">{order.paymentMethod}</td>
-                        <td className="px-6 py-4">
-                           {priceFormat(order.total)}
-                        </td>
-                        <td className="px-6 py-4 sticky right-0 bg-white">
-                           <div className="flex flex-wrap justify-center items-center gap-2">
-                              <button
-                                 onClick={() => onEdit(order)}
-                                 className="font-medium text-blue-600 hover:underline"
-                              >
-                                 Edit
-                              </button>
-                              <button
-                                 onClick={() => onDelete(order)}
-                                 className="font-medium text-red-600 hover:underline"
-                              >
-                                 Delete
-                              </button>
-                           </div>
-                        </td>
-                     </tr>
-                  ))
-               )}
-            </tbody>
-         </table>
-      </div>
-   );
-};
+export default function OrderTable({
+  orders,
+  isLoading,
+  selectedOrderId,
+  setSelectedOrderId,
+}: OrderTableInterface) {
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 text-xs">
+          <tr>
+            <th className="p-3 text-left">ID</th>
+            <th className="p-3 text-left">Tanggal</th>
+            <th className="p-3 text-left">Kasir</th>
+            <th className="p-3 text-left">Item</th>
+            <th className="p-3 text-right">Total</th>
+            <th className="p-3 text-center">Status</th>
+          </tr>
+        </thead>
 
-export default OrderTable;
+        <tbody>
+          {isLoading
+            ? [...Array(6)].map((_, i) => (
+                <tr key={i}>
+                  <td colSpan={6} className="p-3">
+                    <SkeletonLoading />
+                  </td>
+                </tr>
+              ))
+            : orders?.map((o: OrderInterface & { user: UserInterface }) => (
+                <tr
+                  key={o.orderId}
+                  onClick={() => setSelectedOrderId(o.orderId)}
+                  className={`cursor-pointer border-t hover:bg-gray-50 ${
+                    selectedOrderId === o.orderId ? "bg-blue-50" : ""
+                  }`}
+                >
+                  <td className="p-3 font-semibold">#{o.orderId}</td>
+                  <td className="p-3 text-gray-500">
+                    {momentInstance(o.createdAt).format("DD MMMM YYYY HH:mm")}
+                  </td>
+                  <td className="p-3">{o.user?.name}</td>
+                  <td className="p-3 text-gray-500">
+                    {o.orderDetails.length} item
+                  </td>
+                  <td className="p-3 text-right font-bold">
+                    {priceFormat(o.total)}
+                  </td>
+                  <td className="p-3 text-center">
+                    <PaymentStatus status={o.paymentStatus} />
+                  </td>
+                </tr>
+              ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
