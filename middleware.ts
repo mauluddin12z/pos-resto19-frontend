@@ -33,7 +33,7 @@ export function middleware(req: NextRequest) {
       }
 
       if (
-         (pathname === "/users" || pathname === "/categories") &&
+         (pathname === "/pengguna" || pathname === "/kategori") &&
          userRole !== "superadmin"
       ) {
          return NextResponse.redirect(new URL("/unauthorized", req.url));

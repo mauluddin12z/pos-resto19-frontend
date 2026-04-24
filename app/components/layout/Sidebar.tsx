@@ -11,14 +11,16 @@ import {
   LayoutGrid,
   Users,
   LogOut,
+  ArrowLeft,
 } from "lucide-react";
 
 import Modal from "../ui/Modal";
 import LoadingButton from "../ui/LoadingButton";
 import { useAuth } from "@/app/context/AuthContext";
+import { Button } from "../ui/Button";
 
 const baseClass =
-  "flex w-16 flex-col items-center gap-1 rounded-xl px-2 py-3 text-[10px] font-medium transition-colors";
+  "flex w-16 flex-col items-center gap-1 rounded-xl px-2 py-3 text-[10px] font-medium transition-colors cursor-pointer";
 const inactive =
   "text-muted-foreground hover:bg-secondary hover:text-foreground";
 const active = "bg-primary-soft text-primary";
@@ -131,36 +133,36 @@ export default function Sidebar() {
           isOpen={isLogoutModalOpen}
           onClose={() => setIsLogoutModalOpen(false)}
         >
-          <div>
-            <p className="text-center">
-              Are you sure you want to log out of your account?
+          <div className="flex flex-col justify-center items-center">
+            <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+              <LogOut className="h-7 w-7 text-destructive" />
+            </div>
+            <h1 className="text-xl font-bold text-foreground">
+              Keluar dari sesi?
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground text-center">
+              Anda akan keluar dari panel kasir. Pesanan yang belum disimpan
+              akan hilang.
             </p>
-
-            <div className="mt-4 flex justify-center gap-4">
-              <button
-                onClick={handleLogoutClick}
-                disabled={isLoggingOut}
-                className={`bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md ${
-                  isLoggingOut
-                    ? "opacity-50 cursor-not-allowed"
-                    : "cursor-pointer"
-                }`}
-              >
-                {isLoggingOut ? (
-                  <div className="flex gap-2 items-center justify-center">
-                    <LoadingButton /> Logging out...
-                  </div>
-                ) : (
-                  "Logout"
-                )}
-              </button>
-
-              <button
+            <div className="mt-6 flex gap-3">
+              <Button
+                variant="default"
                 onClick={() => setIsLogoutModalOpen(false)}
-                className="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-md cursor-pointer"
+                className="px-10"
               >
-                Cancel
-              </button>
+                <div className="flex gap-2">
+                  <ArrowLeft className="h-4 w-4" /> Batal
+                </div>
+              </Button>
+              <Button
+                variant="destructive"
+                isLoading={isLoggingOut}
+                loadingText="Loading"
+                onClick={handleLogoutClick}
+                className="px-10"
+              >
+                Ya, Keluar
+              </Button>
             </div>
           </div>
         </Modal>

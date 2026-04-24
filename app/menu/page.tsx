@@ -15,6 +15,7 @@ import useMenuActions from "../hooks/useMenuActions";
 import { priceFormat } from "../utils/priceFormat";
 import LoadingButton from "../components/ui/LoadingButton";
 import { useDebounce } from "../hooks/useDebounce";
+import { Button } from "../components/ui/Button";
 
 type DialogState =
   | { mode: "closed" }
@@ -72,8 +73,8 @@ export default function Page() {
 
   const [dialog, setDialog] = useState<DialogState>({ mode: "closed" });
   const [formData, setFormData] = useState(emptyForm);
-
   const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const openCreate = () => {
     setFormData(emptyForm);
@@ -124,8 +125,6 @@ export default function Page() {
       }
     };
   }, [formData.imagePreview]);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Handle form submission
 
@@ -264,31 +263,22 @@ export default function Page() {
           size="lg"
           footer={
             <>
-              <button
-                type="button"
-                onClick={close}
-                className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary cursor-pointer"
-              >
+              <Button variant="default" onClick={close}>
                 Batal
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="primary"
                 type="submit"
                 form="menu-form"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-card)] transition-opacity hover:opacity-90 cursor-pointer"
-                disabled={isSubmitting}
+                isLoading={isSubmitting}
+                loadingText="Loading"
               >
-                {isSubmitting ? (
-                  <div className="flex gap-x-2">
-                    <LoadingButton /> Loading
-                  </div>
-                ) : dialog.mode === "create" ? (
-                  "Tambah Menu"
-                ) : dialog.mode === "edit" ? (
-                  "Simpan Perubahan"
-                ) : (
-                  "Submit"
-                )}
-              </button>
+                {dialog.mode === "create"
+                  ? "Tambah Menu"
+                  : dialog.mode === "edit"
+                    ? "Simpan Perubahan"
+                    : "Submit"}
+              </Button>
             </>
           }
         >
@@ -312,28 +302,19 @@ export default function Page() {
           size="sm"
           footer={
             <>
-              <button
-                type="button"
-                onClick={close}
-                className="rounded-xl border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-secondary"
-              >
+              <Button variant="default" onClick={close}>
                 Batal
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant="destructive"
                 onClick={() => submitDeleteMenu()}
-                className="inline-flex items-center gap-2 rounded-xl bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground shadow-[var(--shadow-card)] transition-opacity hover:opacity-90 cursor-pointer"
+                isLoading={isSubmitting}
+                loadingText="Loading"
               >
-                {isSubmitting ? (
-                  <div className="flex gap-x-2">
-                    <LoadingButton /> Loading
-                  </div>
-                ) : (
-                  <div className="flex gap-x-2">
-                    <Trash2 className="h-4 w-4" /> Hapus
-                  </div>
-                )}
-              </button>
+                <div className="flex gap-x-2">
+                  <Trash2 className="h-4 w-4" /> Hapus
+                </div>
+              </Button>
             </>
           }
         >

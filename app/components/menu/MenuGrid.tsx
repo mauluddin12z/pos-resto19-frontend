@@ -54,7 +54,7 @@ const MenuGrid: React.FC<MenuGridPropsInterface> = ({
   if (menus?.length === 0)
     return (
       <div className="flex justify-center items-center h-[calc(100vh-12rem)]">
-        <span className="text-gray-400">No menus available.</span>
+        <span className="text-gray-400">Tidak ada menu tersedia.</span>
       </div>
     );
   return (

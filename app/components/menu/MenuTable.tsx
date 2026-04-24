@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useMemo } from "react";
 import { MenuInterface } from "../../types";
 import Image from "next/image";
 import { priceFormat } from "../../utils/priceFormat";

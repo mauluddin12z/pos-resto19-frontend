@@ -1,25 +1,41 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useState } from "react";
 import MainLayout from "../components/layout/MainLayout";
-import { CategoryInterface } from "../types";
+import { CategoryFormInterface, CategoryInterface } from "../types";
 import Pagination from "../components/ui/Pagination";
 import Modal from "../components/ui/Modal";
 import { useCategories } from "../api/categoryServices";
-import AddCategoryForm from "../components/category/AddCategoryForm";
-import EditCategoryForm from "../components/category/EditCategoryForm";
 import useCategoryActions from "../hooks/useCategoryActions";
-import { Pencil, Plus, Trash2, Tag } from "lucide-react";
+import { Pencil, Plus, Trash2, Tag, UtensilsCrossed } from "lucide-react";
 import { PageShell } from "../components/ui/PageShell";
 import IconButton from "../components/ui/IconButton";
-import DeleteConfirmationModal from "../components/ui/DeleteConfirmationModal";
-import { useDebounce } from "../hooks/useDebounce";
+import CategoryForm from "../components/category/CategoryForm";
+import LoadingButton from "../components/ui/LoadingButton";
+import { useMenus } from "../api/menuServices";
+import { Button } from "../components/ui/Button";
 
-type ModalType = "add" | "edit" | "delete" | null;
+type DialogState =
+  | { mode: "closed" }
+  | { mode: "create" }
+  | { mode: "edit"; record: CategoryInterface }
+  | { mode: "delete"; record: CategoryInterface };
+
+type FormErrors = Partial<Record<keyof CategoryInterface, string>>;
+
+const emptyForm: CategoryFormInterface = {
+  categoryId: "",
+  categoryName: "",
+};
+
+const mapCategoryToForm = (
+  record: CategoryInterface,
+): CategoryFormInterface => ({
+  categoryId: String(record.categoryId),
+  categoryName: record.categoryName,
+});
 
 export default function Page() {
-  const [searchQuery, setSearchQuery] = useState("");
-
   const [filters, setFilters] = useState({
     searchQuery: "",
     page: 1,
@@ -32,65 +48,76 @@ export default function Page() {
     mutate,
   } = useCategories(filters);
 
-  const debouncedSearch = useDebounce(searchQuery, 300);
+  const [dialog, setDialog] = useState<DialogState>({ mode: "closed" });
+  const [formData, setFormData] = useState(emptyForm);
 
-  useEffect(() => {
-    setFilters((prev) => {
-      if (prev.searchQuery === debouncedSearch) return prev;
-      return { ...prev, searchQuery: debouncedSearch, page: 1 };
-    });
-  }, [debouncedSearch]);
+  const { menus } = useMenus({ categoryId: formData.categoryId });
+  const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  const handlePageChange = (page: number) => {
-    setFilters((prev) => ({ ...prev, page }));
+  const openCreate = () => {
+    setFormData(emptyForm);
+    setFormErrors({});
+    setDialog({ mode: "create" });
   };
+
+  const openEdit = (record: CategoryInterface) => {
+    setFormData(mapCategoryToForm(record));
+    setFormErrors({});
+    setDialog({ mode: "edit", record });
+  };
+  const openDelete = (record: CategoryInterface) => {
+    setFormData(mapCategoryToForm(record));
+    setFormErrors({});
+    setDialog({ mode: "delete", record });
+  };
+
+  const close = () => setDialog({ mode: "closed" });
+
+  // Handle input change
+  const handleChange = useCallback((e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
 
   /* ---------------- MODAL STATE (REFACTORED) ---------------- */
 
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [selectedCategory, setSelectedCategory] =
-    useState<CategoryInterface | null>(null);
+  // Handle form submission
 
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { handleAddCategory, handleEditCategory, handleDeleteCategory } =
+    useCategoryActions();
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-  const { handleDeleteCategory } = useCategoryActions();
-
-  /* ---------------- MODAL HANDLERS ---------------- */
-
-  const openAddModal = () => {
-    setSelectedCategory(null);
-    setActiveModal("add");
+    if (dialog.mode === "create") {
+      await handleAddCategory({
+        formData,
+        setIsSubmitting,
+        setFormErrors,
+        closeAddModal: close,
+        mutate,
+      });
+    } else if (dialog.mode === "edit") {
+      await handleEditCategory({
+        categoryId: Number(formData.categoryId),
+        formData,
+        setIsSubmitting,
+        setFormErrors,
+        closeEditModal: close,
+        mutate,
+      });
+    }
   };
 
-  const openEditModal = useCallback((category: CategoryInterface) => {
-    setSelectedCategory(category);
-    setActiveModal("edit");
-  }, []);
-
-  const openDeleteModal = useCallback((category: CategoryInterface) => {
-    setSelectedCategory(category);
-    setActiveModal("delete");
-  }, []);
-
-  const closeModal = useCallback(() => {
-    setActiveModal(null);
-    setSelectedCategory(null);
-  }, []);
-
-  /* ---------------- DELETE ACTION ---------------- */
-
-  const confirmDeleteCategory = useCallback(async () => {
-    if (!selectedCategory?.categoryId) return;
-
+  const submitDeleteCategory = async () => {
     await handleDeleteCategory({
-      categoryId: selectedCategory.categoryId,
-      setIsDeleting,
-      closeDeleteModal: closeModal,
+      categoryId: Number(formData.categoryId),
+      setIsDeleting: setIsSubmitting,
+      closeDeleteModal: close,
       mutate,
     });
-  }, [selectedCategory, mutate, closeModal]);
-
+  };
   return (
     <MainLayout>
       <PageShell
@@ -98,7 +125,7 @@ export default function Page() {
         description="Kelompokkan menu Anda untuk navigasi yang lebih cepat"
         actions={
           <button
-            onClick={openAddModal}
+            onClick={openCreate}
             className="flex items-center gap-1 rounded-lg bg-primary hover:opacity-90 px-3 py-2 text-sm font-semibold text-white cursor-pointer transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
@@ -133,7 +160,7 @@ export default function Page() {
 
                   <div className="mt-4 flex gap-2 border-t border-border pt-4">
                     <button
-                      onClick={() => openEditModal(category)}
+                      onClick={() => openEdit(category)}
                       className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-border py-2 text-xs font-semibold transition hover:bg-primary hover:text-primary-foreground hover:border-primary cursor-pointer"
                     >
                       <Pencil className="h-3.5 w-3.5" />
@@ -142,7 +169,7 @@ export default function Page() {
 
                     <IconButton
                       variant="delete"
-                      onClick={() => openDeleteModal(category)}
+                      onClick={() => openDelete(category)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </IconButton>
@@ -161,42 +188,102 @@ export default function Page() {
               pageSize={categories?.pagination?.pageSize}
               hasNextPage={categories?.pagination?.hasNextPage}
               isLoading={loadingCategories}
-              onPageChange={handlePageChange}
+              onPageChange={(page) => setFilters((prev) => ({ ...prev, page }))}
             />
           </div>
         </div>
       </PageShell>
 
       {/* ================= MODALS ================= */}
-
-      {/* ADD */}
-      {activeModal === "add" && (
-        <Modal isOpen onClose={closeModal}>
-          <AddCategoryForm closeAddModal={closeModal} mutate={mutate} />
-        </Modal>
-      )}
-
-      {/* EDIT */}
-      {activeModal === "edit" && selectedCategory && (
-        <Modal isOpen onClose={closeModal}>
-          <EditCategoryForm
-            categoryId={selectedCategory.categoryId}
-            mutate={mutate}
-            closeEditModal={closeModal}
-          />
-        </Modal>
-      )}
+      <Modal
+        isOpen={dialog.mode === "create" || dialog.mode === "edit"}
+        onClose={close}
+        title={dialog.mode === "create" ? "Tambah Kategori" : "Edit Kategori"}
+        description={
+          dialog.mode === "create"
+            ? "Tambahkan kategori baru untuk mengelompokkan menu"
+            : "Perbarui informasi kategori"
+        }
+        icon={
+          dialog.mode === "create" ? (
+            <UtensilsCrossed className="h-5 w-5" />
+          ) : (
+            <Pencil className="h-5 w-5" />
+          )
+        }
+        size="lg"
+        footer={
+          <>
+            <Button variant="default" onClick={close}>
+              Batal
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="category-form"
+              isLoading={isSubmitting}
+              loadingText="Loading"
+            >
+              {dialog.mode === "create"
+                ? "Tambah Kategori"
+                : dialog.mode === "edit"
+                  ? "Simpan Perubahan"
+                  : "Submit"}
+            </Button>
+          </>
+        }
+      >
+        <CategoryForm
+          formData={formData}
+          formErrors={formErrors}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          isDisable={isSubmitting}
+        />
+      </Modal>
 
       {/* DELETE */}
-      {activeModal === "delete" && selectedCategory && (
-        <DeleteConfirmationModal
-          isOpen={activeModal === "delete"}
-          onClose={closeModal}
-          onConfirm={confirmDeleteCategory}
-          isLoading={isDeleting}
-          message="Apakah Anda yakin ingin menghapus pengguna ini?"
-        />
-      )}
+      <Modal
+        isOpen={dialog.mode === "delete"}
+        onClose={close}
+        title="Hapus Kategori"
+        description="Tindakan ini tidak dapat dibatalkan"
+        icon={<Trash2 className="h-5 w-5" />}
+        size="sm"
+        footer={
+          <>
+            <Button variant="default" onClick={close}>
+              Batal
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => submitDeleteCategory()}
+              isLoading={isSubmitting}
+              loadingText="Loading"
+            >
+              <div className="flex gap-x-2">
+                <Trash2 className="h-4 w-4" /> Hapus
+              </div>
+            </Button>
+          </>
+        }
+      >
+        {dialog.mode === "delete" && (
+          <p className="text-sm text-foreground">
+            Apakah Anda yakin ingin menghapus kategori{" "}
+            <span className="font-semibold">
+              "{dialog.record.categoryName}"
+            </span>
+            ?
+            {menus?.data?.length > 0 && (
+              <span className="mt-2 block rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs text-destructive">
+                Kategori ini memiliki {menus?.data?.length} menu terkait.
+                Menghapusnya bisa mempengaruhi data produk.
+              </span>
+            )}
+          </p>
+        )}
+      </Modal>
     </MainLayout>
   );
 }

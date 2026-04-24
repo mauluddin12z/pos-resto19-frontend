@@ -1,183 +1,199 @@
 import { createUser, deleteUser, updateUser } from "../api/userServices";
+import { MESSAGES } from "../constants/messages";
 import { useGlobalAlert } from "../context/AlertContext";
-import { AddUserFormInterface, EditUserFormInterface } from "../types";
+import { UserFormInterface } from "../types";
 
 /**
  * Custom hook to manage User-related actions
  */
 const useUserActions = () => {
-   const { showAlert } = useGlobalAlert();
+  const { showAlert } = useGlobalAlert();
 
-   /**
-    * Validates User form data and returns error messages
-    */
-   const validateUserForm = (formData: {
-      name: string;
-      username: string;
-      password: string;
-      role: string;
-   }) => {
-      const errors = {
-         name: "",
-         username: "",
-         password: "",
-         role: "",
-      };
+  /**
+   * Validates User form data and returns error messages
+   */
+  const validateUserForm = (formData: {
+    name: string;
+    username: string;
+    password: string;
+    confirmPassword: string;
+    role: string;
+  }) => {
+    const errors = {
+      name: "",
+      username: "",
+      password: "",
+      confirmPassword: "",
+      role: "",
+    };
 
-      if (!formData.name.trim()) errors.name = "Name is required.";
-      if (!formData.username) errors.username = "Username is required.";
-      if (!formData.password) errors.password = "Password is required.";
-      if (!formData.role) errors.role = "Role is required.";
+    if (!formData.name.trim()) errors.name = "Nama wajib diisi.";
+    if (!formData.username) errors.username = "Username wajib diisi.";
+    if (formData.password.length < 6) errors.password = "Minimal 6 karakter";
+    else if (formData.password.length > 64)
+      errors.password = "Maksimal 64 karakter";
+    if (formData.password !== formData.confirmPassword)
+      errors.confirmPassword = "Konfirmasi tidak cocok";
+    if (!formData.role) errors.role = "Role is required.";
 
-      return errors;
-   };
+    return errors;
+  };
 
-   /**
-    * Handles adding a new user
-    */
-   const handleAddUser = async ({
-      formData,
-      setIsSubmitting,
-      closeAddModal,
-      mutate,
-      setFormErrors,
-   }: {
-      formData: AddUserFormInterface;
-      setIsSubmitting: (val: boolean) => void;
-      closeAddModal: () => void;
-      mutate: () => void;
-      setFormErrors: (errors: any) => void;
-   }) => {
-      setIsSubmitting(true);
+  /**
+   * Handles adding a new user
+   */
+  const handleAddUser = async ({
+    formData,
+    setIsSubmitting,
+    closeAddModal,
+    mutate,
+    setFormErrors,
+  }: {
+    formData: UserFormInterface;
+    setIsSubmitting: (val: boolean) => void;
+    closeAddModal: () => void;
+    mutate: () => void;
+    setFormErrors: (errors: any) => void;
+  }) => {
+    setIsSubmitting(true);
 
-      const validationErrors = validateUserForm(formData);
-      setFormErrors(validationErrors);
+    const validationErrors = validateUserForm(formData);
+    setFormErrors(validationErrors);
 
-      const hasErrors = Object.values(validationErrors).some((e) => e !== "");
-      if (hasErrors) {
-         setIsSubmitting(false);
-         return;
-      }
+    const hasErrors = Object.values(validationErrors).some((e) => e !== "");
+    if (hasErrors) {
+      setIsSubmitting(false);
+      return;
+    }
 
-      try {
-         const formDataToSend = new FormData();
-         formDataToSend.append("name", formData.name);
-         formDataToSend.append("username", formData.username);
-         formDataToSend.append("password", formData.password);
-         formDataToSend.append("role", formData.role);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("username", formData.username);
+      formDataToSend.append("password", formData.password);
+      formDataToSend.append("role", formData.role);
 
-         const res = await createUser(formDataToSend);
+      const res = await createUser(formDataToSend);
 
-         showAlert({
-            type: "success",
-            message: res?.message || "User successfully created!",
-         });
-      } catch (error: any) {
-         showAlert({
-            type: "error",
-            message: error?.response?.data?.message ?? error.message,
-         });
-      } finally {
-         mutate();
-         closeAddModal();
-         setIsSubmitting(false);
-      }
-   };
+      showAlert({
+        type: "success",
+        message: MESSAGES.USER.CREATE_SUCCESS || res?.message,
+      });
+    } catch (error: any) {
+      showAlert({
+        type: "error",
+        message:
+          MESSAGES.GENERAL.ERROR ||
+          error?.response?.data?.message ||
+          error.message,
+      });
+    } finally {
+      mutate();
+      closeAddModal();
+      setIsSubmitting(false);
+    }
+  };
 
-   /**
-    * Handles editing an existing user
-    */
-   const handleEditUser = async ({
-      userId,
-      formData,
-      closeEditModal,
-      setIsSubmitting,
-      mutate,
-      setFormErrors,
-   }: {
-      userId: number;
-      formData: EditUserFormInterface;
-      closeEditModal: () => void;
-      setIsSubmitting: (val: boolean) => void;
-      mutate: () => void;
-      setFormErrors: (errors: any) => void;
-   }) => {
-      setIsSubmitting(true);
+  /**
+   * Handles editing an existing user
+   */
+  const handleEditUser = async ({
+    userId,
+    formData,
+    closeEditModal,
+    setIsSubmitting,
+    mutate,
+    setFormErrors,
+  }: {
+    userId: number;
+    formData: UserFormInterface;
+    closeEditModal: () => void;
+    setIsSubmitting: (val: boolean) => void;
+    mutate: () => void;
+    setFormErrors: (errors: any) => void;
+  }) => {
+    setIsSubmitting(true);
 
-      const validationErrors = validateUserForm(formData);
-      setFormErrors(validationErrors);
+    const validationErrors = validateUserForm(formData);
+    setFormErrors(validationErrors);
 
-      const hasErrors = Object.values(validationErrors).some((e) => e !== "");
-      if (hasErrors) {
-         setIsSubmitting(false);
-         return;
-      }
+    const hasErrors = Object.values(validationErrors).some((e) => e !== "");
+    if (hasErrors) {
+      setIsSubmitting(false);
+      return;
+    }
 
-      try {
-         const formDataToSend = new FormData();
-         formDataToSend.append("userId", formData.userId?.toString() || "");
-         formDataToSend.append("name", formData.name);
-         formDataToSend.append("username", formData.username);
-         formDataToSend.append("password", formData.password);
-         formDataToSend.append("role", formData.role);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("userId", formData.userId?.toString() || "");
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("username", formData.username);
+      formDataToSend.append("password", formData.password);
+      formDataToSend.append("role", formData.role);
 
-         const res = await updateUser(userId, formDataToSend);
+      const res = await updateUser(userId, formDataToSend);
 
-         showAlert({
-            type: "success",
-            message: res?.message || "User updated successfully!",
-         });
-      } catch (error: any) {
-         showAlert({
-            type: "error",
-            message: error?.response?.data?.message ?? error.message,
-         });
-      } finally {
-         mutate();
-         closeEditModal();
-         setIsSubmitting(false);
-      }
-   };
+      showAlert({
+        type: "success",
+        message: MESSAGES.USER.UPDATE_SUCCESS || res?.message,
+      });
+    } catch (error: any) {
+      showAlert({
+        type: "error",
+        message:
+          MESSAGES.GENERAL.ERROR ||
+          error?.response?.data?.message ||
+          error.message,
+      });
+    } finally {
+      mutate();
+      closeEditModal();
+      setIsSubmitting(false);
+    }
+  };
 
-   /**
-    * Handles deleting a user
-    */
-   const handleDeleteUser = async ({
-      userId,
-      setIsDeleting,
-      closeDeleteModal,
-      mutate,
-   }: {
-      userId: number;
-      setIsDeleting: (val: boolean) => void;
-      closeDeleteModal: () => void;
-      mutate: () => void;
-   }) => {
-      setIsDeleting(true);
+  /**
+   * Handles deleting a user
+   */
+  const handleDeleteUser = async ({
+    userId,
+    setIsDeleting,
+    closeDeleteModal,
+    mutate,
+  }: {
+    userId: number;
+    setIsDeleting: (val: boolean) => void;
+    closeDeleteModal: () => void;
+    mutate: () => void;
+  }) => {
+    setIsDeleting(true);
 
-      try {
-         const res = await deleteUser(userId);
-         showAlert({
-            type: "success",
-            message: res?.message || "User deleted successfully!",
-         });
-      } catch (error: any) {
-         showAlert({
-            type: "error",
-            message: error?.response?.data?.message ?? error.message,
-         });
-      } finally {
-         mutate();
-         closeDeleteModal();
-         setIsDeleting(false);
-      }
-   };
+    try {
+      const res = await deleteUser(userId);
+      showAlert({
+        type: "success",
+        message: MESSAGES.USER.DELETE_SUCCESS || res?.message,
+      });
+    } catch (error: any) {
+      showAlert({
+        type: "error",
+        message:
+          MESSAGES.GENERAL.ERROR ||
+          error?.response?.data?.message ||
+          error.message,
+      });
+    } finally {
+      mutate();
+      closeDeleteModal();
+      setIsDeleting(false);
+    }
+  };
 
-   return {
-      handleAddUser,
-      handleEditUser,
-      handleDeleteUser,
-   };
+  return {
+    handleAddUser,
+    handleEditUser,
+    handleDeleteUser,
+  };
 };
 
 export default useUserActions;

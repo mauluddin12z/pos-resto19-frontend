@@ -24,25 +24,16 @@ export interface MenuFormInterface {
   menuImage?: File | null;
   imagePreview?: string;
 }
-
-export interface AddCategoryFormInterface {
+export interface CategoryFormInterface {
+  categoryId?: string;
   categoryName: string;
 }
-export interface EditCategoryFormInterface {
-  categoryId: number;
-  categoryName: string;
-}
-export interface AddUserFormInterface {
+export interface UserFormInterface {
+  userId?: string;
   name: string;
   username: string;
   password: string;
-  role: string;
-}
-export interface EditUserFormInterface {
-  userId: number;
-  name: string;
-  username: string;
-  password: string;
+  confirmPassword: string;
   role: string;
 }
 

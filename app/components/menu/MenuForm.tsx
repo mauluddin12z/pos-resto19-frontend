@@ -1,10 +1,6 @@
 import React from "react";
 import { CategoryInterface } from "../../types";
-import AddCategoryModal from "./AddCategoryModal";
 import { useCategories } from "@/app/api/categoryServices";
-import LoadingButton from "../ui/LoadingButton";
-import TextInput from "../ui/TextInput";
-import NumberInput from "../ui/NumberInput";
 import { ChevronDown, Plus } from "lucide-react";
 import { Field } from "../ui/Field";
 import { FormTextarea } from "../ui/FormTextarea";
@@ -51,7 +47,7 @@ const MenuForm = ({
           >
             <Plus className="text-blue-500" />
             <span className="text-gray-600 font-medium text-wrap text-center">
-              Upload Menu Image
+              Upload Gambar
             </span>
           </label>
           <input

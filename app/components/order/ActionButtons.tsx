@@ -35,7 +35,7 @@ const ActionButtons = ({
           onClick={onPayBill}
           className="border bg-blue-600 rounded-lg text-xs text-white p-2.5 hover:bg-blue-700 hover:text-white cursor-pointer"
         >
-          Pay Bill
+          Bayar
         </button>
       ) : (
         <button

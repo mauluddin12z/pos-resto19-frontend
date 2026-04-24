@@ -14,7 +14,11 @@ import Invoice from "../invoice/Invoice";
 import { useReactToPrint } from "react-to-print";
 import moment from "moment";
 import momentInstance from "@/app/utils/momentConfig";
-import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
+import Modal from "../ui/Modal";
+import { CreditCard, ReceiptText, Trash2 } from "lucide-react";
+import { Field } from "../ui/Field";
+import PaymentMethod from "../payment/PaymentMethod";
+import { Button } from "../ui/Button";
 
 interface Props {
   order: OrderInterface & { user: UserInterface };
@@ -57,12 +61,6 @@ const OrderDetailPanel = ({ order, mutate }: Props) => {
 
   const contentRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({ contentRef });
-
-  const statusLabel: Record<string, string> = {
-    semua: "Semua",
-    paid: "Lunas",
-    unpaid: "Belum Bayar",
-  };
 
   return (
     <>
@@ -145,20 +143,68 @@ const OrderDetailPanel = ({ order, mutate }: Props) => {
         </div>
       </aside>
 
-      {/* ================= PAYMENT ================= */}
       {modalState?.type === "payment" && (
-        <PaymentModal
+        <Modal
           isOpen={modalState.isOpen}
           onClose={closeModal}
-          order={order}
-          date={momentInstance(order.createdAt).format("DD MMMM YYYY")}
-          time={momentInstance(order.createdAt).format("HH:mm")}
-          paymentOptions={paymentOptions}
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-          handlePayment={() => handlePayment(closeModal)}
-          isSubmitting={isSubmittingPayment}
-        />
+          title={`Bayar Pesanan ${order ? `#${order.orderId}` : ""}`}
+          description="Pilih metode pembayaran dan konfirmasi transaksi."
+          icon={<ReceiptText className="h-5 w-5" />}
+          size="md"
+          footer={
+            <>
+              <Button variant="default" onClick={closeModal}>
+                Batal
+              </Button>
+              <Button
+                variant="primary"
+                onClick={() => handlePayment(closeModal)}
+              >
+                <div className="flex items-center justify-center gap-x-2">
+                  <CreditCard className="h-4 w-4" /> Proses Bayar
+                </div>
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-border p-4">
+              <div className="flex items-start justify-between border-b border-border pb-3">
+                <div className="rounded-xl bg-primary-soft px-4 py-3 text-sm font-bold text-primary">
+                  #{order?.orderId}
+                </div>
+                <p className="text-right text-xs text-muted-foreground">
+                  {order?.createdAt.slice(0, 16)}
+                </p>
+              </div>
+              <div className="mt-3 space-y-2 text-sm">
+                {order?.orderDetails.map((detail) => (
+                  <div
+                    key={detail.orderDetailId}
+                    className="grid grid-cols-[40px_1fr_auto] gap-3"
+                  >
+                    <span className="text-muted-foreground">
+                      {detail.quantity}×
+                    </span>
+                    <span>{detail.menu.menuName}</span>
+                    <span className="font-semibold tabular-nums">
+                      {priceFormat(detail.subtotal)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 flex justify-between border-t border-border pt-3 text-sm font-bold">
+                <span>Total</span>
+                <span className="tabular-nums">{priceFormat(order.total)}</span>
+              </div>
+            </div>
+            <PaymentMethod
+              paymentMethod={paymentMethod}
+              setPaymentMethod={setPaymentMethod}
+              paymentOptions={paymentOptions}
+            />
+          </div>
+        </Modal>
       )}
 
       {/* ================= EDIT ================= */}
@@ -171,19 +217,44 @@ const OrderDetailPanel = ({ order, mutate }: Props) => {
           paymentOptions={paymentOptions}
           paymentMethod={paymentMethod}
           setPaymentMethod={setPaymentMethod}
-          handlePayment={() => handlePayment(closeModal)}
         />
       )}
 
       {/* ================= DELETE ================= */}
       {modalState?.type === "delete" && (
-        <DeleteConfirmationModal
+        <Modal
           isOpen={modalState.isOpen}
           onClose={closeModal}
-          onConfirm={confirmDelete}
-          isLoading={isDeleting}
-          message="Apakah Anda yakin ingin menghapus menu ini?"
-        />
+          title="Hapus Pesanan"
+          description="Tindakan ini akan menghapus pesanan dari daftar sample."
+          icon={<Trash2 className="h-5 w-5" />}
+          size="sm"
+          footer={
+            <>
+              <Button variant="default" onClick={closeModal}>
+                Batal
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={confirmDelete}
+                isLoading={isDeleting}
+                loadingText="Loading"
+              >
+                Hapus
+              </Button>
+            </>
+          }
+        >
+          <div className="rounded-2xl border border-destructive/25 bg-destructive/10 p-4 text-sm">
+            Yakin ingin menghapus{" "}
+            <span className="font-bold">Pesanan #{order?.orderId}</span>? Total
+            transaksi sebesar{" "}
+            <span className="font-bold tabular-nums">
+              {priceFormat(order?.total ?? 0)}
+            </span>{" "}
+            tidak akan tampil lagi.
+          </div>
+        </Modal>
       )}
 
       {/* ================= SUCCESS ================= */}

@@ -36,12 +36,10 @@ export default function PaymentSuccessful({
             </div>
 
             <h1 className="mb-6 text-4xl font-extrabold text-green-600">
-              Payment Successful!
+              Pembayaran Berhasil!
             </h1>
 
-            <p className="mb-8 text-xl text-gray-700">
-              Thank you for your purchase.
-            </p>
+            <p className="mb-8 text-xl text-gray-700">Terima kasih.</p>
             <button
               className="flex justify-center items-center gap-4 w-full bg-gray-600 hover:bg-gray-700 text-white p-2 rounded cursor-pointer"
               onClick={handlePrint}

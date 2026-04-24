@@ -1,6 +1,7 @@
 import { createMenu, updateMenu, deleteMenu } from "@/app/api/menuServices";
 import { useGlobalAlert } from "../context/AlertContext";
 import { MenuFormInterface } from "../types";
+import { MESSAGES } from "../constants/messages";
 
 /**
  * Custom hook to manage Menu-related actions
@@ -19,7 +20,7 @@ const useMenuActions = () => {
       price: "",
     };
 
-    console.log(formData)
+    console.log(formData);
     const stock = Number(formData.stock);
     const price = Number(formData.price);
 
@@ -85,12 +86,15 @@ const useMenuActions = () => {
 
       showAlert({
         type: "success",
-        message: res?.message || "Menu successfully created!",
+        message: MESSAGES.MENU.CREATE_SUCCESS || res?.message,
       });
     } catch (error: any) {
       showAlert({
         type: "error",
-        message: error?.response?.data?.message ?? error.message,
+        message:
+          MESSAGES.GENERAL.ERROR ||
+          error?.response?.data?.message ||
+          error.message,
       });
     } finally {
       mutate();
@@ -144,12 +148,15 @@ const useMenuActions = () => {
 
       showAlert({
         type: "success",
-        message: res?.message || "Menu updated successfully!",
+        message: MESSAGES.MENU.UPDATE_SUCCESS || res?.message,
       });
     } catch (error: any) {
       showAlert({
         type: "error",
-        message: error?.response?.data?.message ?? error.message,
+        message:
+          MESSAGES.GENERAL.ERROR ||
+          error?.response?.data?.message ||
+          error.message,
       });
     } finally {
       mutate();
@@ -178,12 +185,15 @@ const useMenuActions = () => {
       const res = await deleteMenu(menuId);
       showAlert({
         type: "success",
-        message: res?.message || "Menu deleted successfully!",
+        message: MESSAGES.MENU.DELETE_SUCCESS || res?.message,
       });
     } catch (error: any) {
       showAlert({
         type: "error",
-        message: error?.response?.data?.message ?? error.message,
+        message:
+          MESSAGES.GENERAL.ERROR ||
+          error?.response?.data?.message ||
+          error.message,
       });
     } finally {
       mutate();

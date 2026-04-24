@@ -1,15 +1,17 @@
 "use client";
-import React, { useCallback, useEffect, useState } from "react";
+
+import { useEffect, useMemo, useState } from "react";
 import Modal from "../ui/Modal";
-import { OrderInterface, CartItemInterface } from "../../types";
-import useCart from "@/app/hooks/useCart";
-import CartItem from "../cart/CartItem";
+import { OrderInterface, MenuInterface } from "../../types";
 import { priceFormat } from "@/app/utils/priceFormat";
 import useOrderActions from "@/app/hooks/useOrderActions";
-import AddOrderItemModal from "./AddOrderItemModal";
-import LoadingButton from "../ui/LoadingButton";
+import { useMenus } from "@/app/api/menuServices";
+import Image from "next/image";
+import { FormSelect } from "../ui/FormSelect";
+import { FormInput } from "../ui/FormInput";
+import { Minus, Plus, Trash2, ShoppingCart, CupSoda } from "lucide-react";
 import PaymentMethod from "../payment/PaymentMethod";
-import { ShoppingCart } from "lucide-react";
+import { Button } from "../ui/Button";
 
 interface EditOrderModalProps {
   isOpen: boolean;
@@ -19,7 +21,17 @@ interface EditOrderModalProps {
   paymentOptions: string[];
   paymentMethod: string;
   setPaymentMethod: (method: string) => void;
-  handlePayment: (onSuccess?: () => void) => void;
+}
+
+interface EditLine {
+  id: number; // unique row id
+  menuId: number;
+  name: string;
+  imageUrl: string;
+  price: number;
+  quantity: number;
+  notes: string;
+  stock: number;
 }
 
 const EditOrderModal = ({
@@ -31,163 +43,245 @@ const EditOrderModal = ({
   paymentMethod,
   setPaymentMethod,
 }: EditOrderModalProps) => {
-  const {
-    cart,
-    setCart,
-    handleNotesChange,
-    handleRemove,
-    handleQuantityChange,
-    stockMessage,
-    handleAddToCart,
-  } = useCart();
+  const { menus } = useMenus({ page: 1, pageSize: 100 });
+  const { handleUpdateOrder } = useOrderActions();
 
-  const { handleUpdateOrder, isSubmitting } = useOrderActions();
+  const [lines, setLines] = useState<EditLine[]>([]);
 
-  // Load order into cart on modal open
+  // 🔁 Load order
   useEffect(() => {
-    if (isOpen && selectedOrder) {
-      const mappedItems: CartItemInterface[] = selectedOrder.orderDetails.map(
-        (item) => ({
-          id: item.menu.menuId,
-          imageUrl: item.menu.menuImageUrl,
-          name: item.menu.menuName,
-          price: item.price,
-          quantity: item.quantity,
-          subtotal: item.price * item.quantity,
-          notes: item.notes || "",
-          stock: item.menu.stock,
-        }),
-      );
+    if (!isOpen || !selectedOrder) return;
 
-      const total = mappedItems
-        .reduce((acc, item) => acc + item.subtotal, 0)
-        .toFixed(2);
+    setLines(
+      selectedOrder.orderDetails.map((item, index) => ({
+        id: Date.now() + index,
+        menuId: item.menu.menuId,
+        name: item.menu.menuName,
+        imageUrl: item.menu.menuImageUrl,
+        price: item.price,
+        quantity: item.quantity,
+        notes: item.notes || "",
+        stock: item.menu.stock,
+      })),
+    );
 
-      setCart({
-        cartItems: mappedItems,
-        total,
-      });
-      setPaymentMethod(selectedOrder.paymentMethod ?? "");
-    }
-  }, [isOpen, selectedOrder, setCart]);
+    setPaymentMethod(selectedOrder.paymentMethod ?? "");
+  }, [isOpen, selectedOrder]);
 
-  const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+  // 💰 Derived total
+  const total = useMemo(() => {
+    return lines.reduce((acc, item) => acc + item.price * item.quantity, 0);
+  }, [lines]);
 
-  const openAddItemModal = useCallback(() => {
-    setIsAddItemModalOpen(true);
-  }, []);
+  // ➕ Add line
+  const addLine = () => {
+    setLines((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        menuId: 0,
+        name: "",
+        imageUrl: "",
+        price: 0,
+        quantity: 1,
+        notes: "",
+        stock: 0,
+      },
+    ]);
+  };
 
-  const closeAddItemModal = useCallback(() => {
-    setIsAddItemModalOpen(false);
-  }, []);
+  // ❌ Remove line
+  const removeLine = (id: number) => {
+    setLines((prev) => prev.filter((l) => l.id !== id));
+  };
+
+  // 🔽 Change menu
+  const changeMenu = (id: number, menuId: number) => {
+    const menu = menus?.data?.find((m: MenuInterface) => m.menuId === menuId);
+    if (!menu) return;
+
+    setLines((prev) =>
+      prev.map((line) =>
+        line.id === id
+          ? {
+              ...line,
+              menuId,
+              name: menu.menuName,
+              imageUrl: menu.menuImageUrl,
+              price: menu.price,
+              stock: menu.stock,
+              quantity: 1,
+            }
+          : line,
+      ),
+    );
+  };
+
+  const changeQty = (id: number, qty: number) => {
+    setLines((prev) =>
+      prev.map((line) =>
+        line.id === id
+          ? {
+              ...line,
+              quantity: Math.max(1, Math.min(qty, line.stock || 999)),
+            }
+          : line,
+      ),
+    );
+  };
+
+  const changeNotes = (id: number, notes: string) => {
+    setLines((prev) =>
+      prev.map((line) => (line.id === id ? { ...line, notes } : line)),
+    );
+  };
+
+  // 💾 Save
+  const handleSave = () => {
+    if (!selectedOrder) return;
+
+    const cartItems = lines.map((line) => ({
+      id: line.menuId,
+      name: line.name,
+      imageUrl: line.imageUrl,
+      price: line.price,
+      quantity: line.quantity,
+      subtotal: line.price * line.quantity,
+      notes: line.notes,
+      stock: line.stock,
+    }));
+
+    handleUpdateOrder(
+      selectedOrder.orderId,
+      cartItems,
+      total.toString(),
+      paymentMethod,
+      mutate,
+      onClose,
+    );
+  };
 
   return (
-    <>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <div className="w-full h-full overflow-y-auto flex flex-col border border-gray-200 lg:rounded-lg px-4 bg-white">
-          <div className="flex justify-between mb-2 pb-2 border-b border-gray-200 gap-x-2 items-center sticky top-0 bg-white pt-4">
-            <h2 className="flex justify-center gap-4 text-lg font-semibold">
-              <ShoppingCart />
-              Edit Pesanan #{selectedOrder.orderId}
-            </h2>
-            <button
-              onClick={openAddItemModal}
-              className={`px-2 py-1 bg-green-600 hover:bg-green-700 text-white rounded text-sm font-medium cursor-pointer`}
-            >
-              Tambah Item
-            </button>
-          </div>
-          {cart.cartItems.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-primary-soft">
-                <ShoppingCart className="h-7 w-7 text-primary" />
-              </div>
-              <p className="text-sm font-medium text-foreground">
-                Belum ada pesanan
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Pilih menu untuk memulai
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {cart.cartItems.map((item) => (
-                <CartItem
-                  key={item.id}
-                  item={item}
-                  stockMessage={stockMessage}
-                  onQuantityChange={handleQuantityChange}
-                  onNotesChange={handleNotesChange}
-                  onRemove={handleRemove}
-                />
-              ))}
-            </div>
-          )}
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Edit Pesanan #${selectedOrder?.orderId}`}
+      description="Ubah item, jumlah, catatan, dan metode pembayaran."
+      icon={<ShoppingCart className="h-5 w-5" />}
+      size="lg"
+      footer={
+        <>
+          <Button variant="default" onClick={onClose}>
+            Batal
+          </Button>
 
-          {cart.cartItems.length > 0 && (
-            <>
-              {/* Summary + Order */}
-              <div className="sticky bottom-0 bg-white pt-2 pb-4 mt-auto">
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Total:</span>
-                  <span className="text-sm font-semibold">
-                    {priceFormat(parseInt(cart.total))}
-                  </span>
-                </div>
-                <div className="flex flex-col border-t border-gray-200 pt-2">
-                  <PaymentMethod
-                    paymentOptions={paymentOptions}
-                    paymentMethod={paymentMethod}
-                    setPaymentMethod={setPaymentMethod}
+          <Button variant="destructive" onClick={handleSave}>
+            Hapus
+          </Button>
+        </>
+      }
+    >
+      <div className="space-y-4">
+        {/* Header */}
+        <div className="flex justify-between">
+          <p className="text-sm font-semibold">Daftar Item</p>
+          <button
+            onClick={addLine}
+            className="bg-green-600 text-white px-3 py-2 rounded-xl text-xs flex gap-2 items-center"
+          >
+            <Plus className="w-4 h-4" /> Tambah Item
+          </button>
+        </div>
+
+        {/* Items */}
+        <div className="space-y-3">
+          {lines.map((line) => (
+            <div
+              key={line.id}
+              className="p-3 border rounded-2xl bg-secondary/30"
+            >
+              <div className="grid sm:grid-cols-[56px_1fr_auto] gap-3 items-center">
+                {line.imageUrl ? (
+                  <Image
+                    src={line.imageUrl}
+                    width={56}
+                    height={56}
+                    className="rounded-xl"
+                    alt={line.name || line.imageUrl}
+                    unoptimized
                   />
-                  <button
-                    onClick={() => {
-                      handleUpdateOrder(
-                        selectedOrder.orderId,
-                        cart.cartItems,
-                        cart.total,
-                        paymentMethod,
-                        mutate,
-                        onClose,
-                      );
-                    }}
-                    className={`w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded text-sm font-medium ${
-                      isSubmitting
-                        ? "opacity-50 cursor-not-allowed"
-                        : "cursor-pointer"
-                    }`}
+                ) : (
+                  <div className="h-14 w-14 bg-blue-200 flex items-center justify-center rounded-xl">
+                    <CupSoda />
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <FormSelect
+                    value={line.menuId || ""}
+                    onChange={(e) =>
+                      changeMenu(line.id, Number(e.target.value))
+                    }
                   >
-                    {isSubmitting ? (
-                      <div className="flex gap-2 justify-center items-center">
-                        <LoadingButton /> Loading...
-                      </div>
-                    ) : (
-                      "Save Changes"
-                    )}
+                    <option value="">Pilih menu</option>
+                    {menus?.data?.map((menu: MenuInterface) => (
+                      <option key={menu.menuId} value={menu.menuId}>
+                        {menu.menuName} · {priceFormat(menu.price)}
+                      </option>
+                    ))}
+                  </FormSelect>
+
+                  <FormInput
+                    value={line.notes}
+                    onChange={(e) => changeNotes(line.id, e.target.value)}
+                    placeholder="Catatan..."
+                  />
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-primary text-primary hover:bg-primary-soft"
+                    aria-label="Kurangi item"
+                    onClick={() => changeQty(line.id, line.quantity - 1)}
+                  >
+                    <Minus />
+                  </button>
+                  <span className="w-8 text-center text-sm font-bold tabular-nums">
+                    {line.quantity}
+                  </span>
+                  <button
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-primary text-primary hover:bg-primary-soft"
+                    aria-label="Tambah item"
+                    onClick={() => changeQty(line.id, line.quantity + 1)}
+                  >
+                    <Plus />
                   </button>
                   <button
-                    onClick={() => {
-                      onClose();
-                    }}
-                    className={`w-full text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 cursor-pointer mt-2`}
+                    className="flex h-9 w-9 items-center justify-center rounded-xl border border-destructive/40 text-destructive hover:bg-destructive/10"
+                    aria-label="Hapus item"
+                    onClick={() => removeLine(line.id)}
                   >
-                    Cancel Edit
+                    <Trash2 />
                   </button>
                 </div>
               </div>
-            </>
-          )}
+            </div>
+          ))}
         </div>
-        {/* Add Item Modal */}
-        <AddOrderItemModal
-          isAddItemModalOpen={isAddItemModalOpen}
-          closeAddItemModal={closeAddItemModal}
-          onAddToCart={handleAddToCart}
-          cart={cart}
-          onQuantityChange={handleQuantityChange}
+
+        {/* Total */}
+        <div className="flex justify-between font-semibold border-t pt-3">
+          <span>Total</span>
+          <span>{priceFormat(total)}</span>
+        </div>
+
+        <PaymentMethod
+          paymentOptions={paymentOptions}
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
         />
-      </Modal>
-    </>
+      </div>
+    </Modal>
   );
 };
 

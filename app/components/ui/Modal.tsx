@@ -48,7 +48,7 @@ const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in-0"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-modal-i fade-in-0"
       role="dialog"
       aria-modal="true"
       aria-labelledby="form-modal-title"
@@ -60,7 +60,7 @@ const Modal = ({
       />
 
       <div
-        className={`relative w-full ${sizeMap[size]} overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-elevated)] animate-in zoom-in-95 slide-in-from-bottom-2`}
+        className={`relative w-full ${sizeMap[size]} overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-elevated)] animate-modal-in`}
       >
         <div className="flex items-start gap-4 border-b border-border bg-gradient-to-br from-primary-soft/60 to-card px-6 py-5">
           {icon && (

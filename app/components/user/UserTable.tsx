@@ -1,34 +1,25 @@
 "use client";
 
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Pencil, Trash2, Search } from "lucide-react";
 import { UserInterface } from "../../types";
-import Modal from "../ui/Modal";
-import EditUserForm from "./EditUserForm";
-import useUserActions from "@/app/hooks/useUserActions";
 import IconButton from "../ui/IconButton";
-import DeleteConfirmationModal from "../ui/DeleteConfirmationModal";
 
 interface UserPropsInterface {
   users: UserInterface[];
   loading: boolean;
   mutate: () => void;
+  openEdit: (user: UserInterface) => void;
+  openDelete: (user: UserInterface) => void;
 }
 
 export default function UserTable({
   users,
   loading,
-  mutate,
+  openEdit,
+  openDelete,
 }: UserPropsInterface) {
   const [search, setSearch] = useState("");
-
-  const [selectedUser, setSelectedUser] = useState<UserInterface | null>(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const { handleDeleteUser } = useUserActions();
-
   /* ---------------- FILTER ---------------- */
   const filteredUsers = useMemo(() => {
     if (!users) return [];
@@ -37,38 +28,6 @@ export default function UserTable({
       `${u.name} ${u.username}`.toLowerCase().includes(search.toLowerCase()),
     );
   }, [users, search]);
-
-  /* ---------------- MODALS ---------------- */
-  const openEdit = useCallback((user: UserInterface) => {
-    setSelectedUser(user);
-    setIsEditOpen(true);
-  }, []);
-
-  const closeEdit = useCallback(() => {
-    setSelectedUser(null);
-    setIsEditOpen(false);
-  }, []);
-
-  const openDelete = useCallback((user: UserInterface) => {
-    setSelectedUser(user);
-    setIsDeleteOpen(true);
-  }, []);
-
-  const closeDelete = useCallback(() => {
-    setSelectedUser(null);
-    setIsDeleteOpen(false);
-  }, []);
-
-  const confirmDelete = useCallback(async () => {
-    if (!selectedUser?.userId) return;
-
-    await handleDeleteUser({
-      userId: selectedUser.userId,
-      setIsDeleting,
-      closeDeleteModal: closeDelete,
-      mutate,
-    });
-  }, [selectedUser, mutate, closeDelete]);
 
   /* ---------------- ROWS ---------------- */
   const rows = useMemo(() => {
@@ -119,7 +78,7 @@ export default function UserTable({
         </td>
       </tr>
     ));
-  }, [filteredUsers]);
+  }, [filteredUsers, openEdit, openDelete]);
 
   return (
     <>
@@ -178,28 +137,6 @@ export default function UserTable({
           </table>
         </div>
       </div>
-
-      {/* EDIT MODAL */}
-      {selectedUser && isEditOpen && (
-        <Modal isOpen={isEditOpen} onClose={closeEdit}>
-          <EditUserForm
-            userId={selectedUser.userId}
-            mutate={mutate}
-            closeEditModal={closeEdit}
-          />
-        </Modal>
-      )}
-
-      {/* DELETE MODAL */}
-      {selectedUser && isDeleteOpen && (
-        <DeleteConfirmationModal
-          isOpen={isDeleteOpen}
-          onClose={closeDelete}
-          onConfirm={confirmDelete}
-          isLoading={isDeleting}
-          message="Apakah Anda yakin ingin menghapus pengguna ini?"
-        />
-      )}
     </>
   );
 }

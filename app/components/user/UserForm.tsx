@@ -1,167 +1,175 @@
 import React from "react";
 import LoadingButton from "../ui/LoadingButton";
-import TextInput from "../ui/TextInput";
+import { FormInput } from "../ui/FormInput";
+import { Field } from "../ui/Field";
+import { FormSelect } from "../ui/FormSelect";
+import { ChevronDown, Eye, EyeOff } from "lucide-react";
 
 interface formErrors {
-   name?: string;
-   username?: string;
-   password?: string;
-   role?: string;
+  name?: string;
+  username?: string;
+  password?: string;
+  confirmPassword?: string;
+  role?: string;
 }
 interface UserFormProps {
-   formData: any;
-   isSubmitting: boolean;
-   isAdding: boolean;
-   handleChange: (
-      e: React.ChangeEvent<
-         HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >
-   ) => void;
-   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-   formErrors: formErrors;
+  formData: any;
+  dialog: any;
+  showPwd: boolean;
+  setShowPwd: React.Dispatch<React.SetStateAction<boolean>>;
+  handleChange: (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => void;
+  handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  formErrors: formErrors;
 }
 
 const UserForm = ({
-   formData,
-   isSubmitting,
-   isAdding,
-   handleChange,
-   handleSubmit,
-   formErrors,
+  formData,
+  dialog,
+  showPwd,
+  setShowPwd,
+  handleChange,
+  handleSubmit,
+  formErrors,
 }: UserFormProps) => {
-   const userRole = ["admin", "superadmin"];
-   return (
-      <div className="max-w-sm mx-auto bg-white rounded-lg overflow-hidden px-5 pb-5">
-         <form onSubmit={handleSubmit}>
-            {/* Header */}
-            <h2 className="text-2xl font-semibold text-gray-800">
-               {isAdding ? "Add User" : "Edit User"}
-            </h2>
+  const userRole = ["admin", "superadmin"];
+  return (
+    <div className="max-w-sm mx-auto bg-white rounded-lg overflow-hidden px-5 pb-5">
+      <form id="user-form" onSubmit={handleSubmit} className="space-y-5">
+        <Field
+          label="Nama Lengkap"
+          htmlFor="name"
+          required
+          error={formErrors.name}
+        >
+          <FormInput
+            id="name"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            maxLength={100}
+            placeholder="Contoh: Andi Pratama"
+          />
+        </Field>
 
-            {/* name */}
-            <div className="mb-4 mt-4">
-               <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700"
-               >
-                  Name
-               </label>
-               {formErrors.name && (
-                  <p className="text-xs text-red-500 mb-1">{formErrors.name}</p>
-               )}
-               <TextInput
-                  id="name"
-                  name="name"
-                  placeholder="Enter name"
-                  value={formData.name}
-                  onChange={handleChange}
-               />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label="Username"
+            htmlFor="username"
+            required
+            error={formErrors.username}
+            hint="Untuk login ke sistem"
+          >
+            <div className="relative">
+              <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
+                @
+              </span>
+              <input
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                maxLength={20}
+                placeholder="andi"
+                autoComplete="off"
+                className={
+                  "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60" +
+                  " pl-8"
+                }
+              />
             </div>
+          </Field>
 
-            {/* username */}
-            <div className="mb-4 mt-4">
-               <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-700"
-               >
-                  Username
-               </label>
-               {formErrors.username && (
-                  <p className="text-xs text-red-500 mb-1">
-                     {formErrors.username}
-                  </p>
-               )}
-               <TextInput
-                  id="username"
-                  name="username"
-                  placeholder="Enter username"
-                  value={formData.username}
-                  onChange={handleChange}
-               />
-            </div>
-
-            {/* role */}
-            <div className="mb-4">
-               <label
-                  htmlFor="role"
-                  className="block text-sm font-medium text-gray-700"
-               >
-                  Role
-               </label>
-               {formErrors.role && (
-                  <p className="text-xs text-red-500 mb-1">{formErrors.role}</p>
-               )}
-               <select
-                  id="role"
-                  name="role"
-                  value={formData.role || ""}
-                  onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
-               >
-                  <option value="" disabled>
-                     Select a role
+          <Field label="Peran" htmlFor="role" required>
+            <div className="relative">
+              <FormSelect
+                id="role"
+                value={formData.role}
+                onChange={handleChange}
+                name="role"
+              >
+                <option value="" disabled>
+                  Pilih Peran
+                </option>
+                {userRole?.map((role, index) => (
+                  <option key={index} value={role}>
+                    {role}
                   </option>
-                  {userRole?.map((role, index) => (
-                     <option key={index} value={role}>
-                        {role}
-                     </option>
-                  ))}
-               </select>
+                ))}
+              </FormSelect>
+              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             </div>
+          </Field>
+        </div>
 
-            {/* password */}
-            <div className="mb-4 mt-4">
-               <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700"
-               >
-                  password
-               </label>
-               {formErrors.password && (
-                  <p className="text-xs text-red-500 mb-1">
-                     {formErrors.password}
-                  </p>
-               )}
-               <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  placeholder="Enter password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2"
-               />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field
+            label={dialog.mode === "edit" ? "Password Baru" : "Password"}
+            htmlFor="password"
+            required
+            error={formErrors.password}
+            hint={
+              dialog.mode === "edit"
+                ? "Kosongkan jika tidak diubah"
+                : "Minimal 6 karakter"
+            }
+          >
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPwd ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                maxLength={64}
+                placeholder="••••••"
+                autoComplete="new-password"
+                className={
+                  "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled:opacity-60" +
+                  " pr-10"
+                }
+              />
+              <button
+                type="button"
+                onClick={() => setShowPwd((s) => !s)}
+                aria-label={
+                  showPwd ? "Sembunyikan password" : "Tampilkan password"
+                }
+                className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              >
+                {showPwd ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
             </div>
+          </Field>
 
-            {/* Submit Button */}
-            <button
-               type="submit"
-               className={`w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
-                  isSubmitting
-                     ? "opacity-50 cursor-not-allowed"
-                     : "cursor-pointer"
-               }`}
-               disabled={isSubmitting}
-            >
-               {isSubmitting ? (
-                  isAdding ? (
-                     <div className="flex gap-2 justify-center items-center">
-                        <LoadingButton /> Adding...
-                     </div>
-                  ) : (
-                     <div className="flex gap-2 justify-center items-center">
-                        <LoadingButton /> Updating...
-                     </div>
-                  )
-               ) : isAdding ? (
-                  "Add User"
-               ) : (
-                  "Save Changes"
-               )}
-            </button>
-         </form>
-      </div>
-   );
+          <Field
+            label="Konfirmasi Password"
+            htmlFor="confirmPassword"
+            required
+            error={formErrors.confirmPassword}
+          >
+            <FormInput
+              id="confirmPassword"
+              name="confirmPassword"
+              type={showPwd ? "text" : "password"}
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              maxLength={64}
+              placeholder="••••••"
+              autoComplete="new-password"
+            />
+          </Field>
+        </div>
+      </form>
+    </div>
+  );
 };
 
 export default UserForm;
