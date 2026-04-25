@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 
 import Modal from "../ui/Modal";
-import LoadingButton from "../ui/LoadingButton";
 import { useAuth } from "@/app/context/AuthContext";
 import { Button } from "../ui/Button";
 
@@ -26,7 +25,7 @@ const inactive =
 const active = "bg-primary-soft text-primary";
 
 export default function Sidebar() {
-  const { user, handleLogout, loading } = useAuth();
+  const { user, handleLogout, isLoading } = useAuth();
   const userRole = user?.role ?? "superadmin";
   const pathname = usePathname();
   const router = useRouter();
@@ -79,7 +78,7 @@ export default function Sidebar() {
     router.push("/login");
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <aside className="flex w-20 flex-col items-center justify-between border-r border-border bg-card py-4">
         <div className="flex flex-col gap-2">

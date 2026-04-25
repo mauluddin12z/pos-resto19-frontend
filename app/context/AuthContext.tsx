@@ -4,11 +4,10 @@ import { usePathname } from "next/navigation";
 import useSWR from "swr";
 import axiosInstance from "../api/axiosInstance";
 import { logout } from "../api/auth";
-import { useGlobalAlert } from "./AlertContext";
 
 interface Session {
-  username: string;
-  password: string;
+  userId: number;
+  role: string;
 }
 
 // Define the context type
