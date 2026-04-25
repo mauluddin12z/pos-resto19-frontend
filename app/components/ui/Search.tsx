@@ -4,12 +4,14 @@ import React from "react";
 interface Props {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
+  placeholder?: string;
   width?: string;
 }
 
 export default function Search({
   searchQuery,
   setSearchQuery,
+  placeholder,
   width,
 }: Props) {
   return (
@@ -19,7 +21,7 @@ export default function Search({
         type="text"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Cari menu..."
+        placeholder={placeholder || "Cari..."}
         className="w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
       />
     </div>

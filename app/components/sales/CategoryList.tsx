@@ -22,8 +22,21 @@ function CategoryListSkeleton() {
   );
 }
 
-export default function CategoryList({ data, isLoading }: Props) {
+export default function CategoryList({ data = [], isLoading }: Props) {
   if (isLoading) return <CategoryListSkeleton />;
+
+  if (!data.length) {
+    return (
+      <section className="rounded-2xl border bg-white p-5 shadow">
+        <h2 className="mb-4 font-bold">Kategori Terlaris</h2>
+
+        <div className="flex flex-col items-center justify-center py-10 text-center text-gray-500">
+          <p className="text-sm font-medium">Belum ada data</p>
+          <p className="text-xs">Belum ada penjualan per kategori</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="rounded-2xl border bg-white p-5 shadow">

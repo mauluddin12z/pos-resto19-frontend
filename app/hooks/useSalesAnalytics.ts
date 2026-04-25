@@ -49,6 +49,14 @@ function calculateItemsSold(orderList: OrderInterface[]) {
 }
 
 function getChartConfig(dateRange: string) {
+  if (dateRange === "today") {
+    return {
+      labels: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+      groupKey: (date: Date) => date.getHours(),
+      period: "Harian",
+    };
+  }
+
   if (dateRange === "thisWeek") {
     return {
       labels: ["Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu"],
@@ -121,8 +129,7 @@ function buildSalesData(
 }
 
 function calculateTopItems(orderList: OrderInterface[]) {
-  const itemMap: Record<string, TopItem> =
-    {};
+  const itemMap: Record<string, TopItem> = {};
 
   orderList.forEach((order) => {
     order.orderDetails.forEach((detail) => {

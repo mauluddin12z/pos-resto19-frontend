@@ -33,7 +33,7 @@ export default function Page() {
          <div className="px-14 py-14 flex flex-col justify-center border border-gray-200 rounded-lg shadow-sm bg-white">
             <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                <h2 className="text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-                  Sign in to your account
+                  Masuk ke akun Anda
                </h2>
             </div>
 

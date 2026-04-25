@@ -30,8 +30,21 @@ function TopItemsSkeleton() {
   );
 }
 
-export default function TopItems({ items, isLoading }: Props) {
+export default function TopItems({ items = [], isLoading }: Props) {
   if (isLoading) return <TopItemsSkeleton />;
+
+  if (!items.length) {
+    return (
+      <section className="rounded-2xl border bg-white p-5 shadow">
+        <h2 className="mb-4 font-bold">Menu Terlaris</h2>
+
+        <div className="flex flex-col items-center justify-center py-10 text-center text-gray-500">
+          <p className="text-sm font-medium">Belum ada data</p>
+          <p className="text-xs">Menu belum memiliki penjualan</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="rounded-2xl border bg-white p-5 shadow">
@@ -45,7 +58,7 @@ export default function TopItems({ items, isLoading }: Props) {
             </span>
 
             <Image
-              src={data.item.menuImageUrl || "no-image.png"}
+              src={data.item.menuImageUrl || "/no-image.png"}
               alt={data.item.menuName}
               width={80}
               height={80}

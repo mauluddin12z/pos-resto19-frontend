@@ -19,7 +19,7 @@ export const Button: React.FC<ButtonProps> = ({
   ...props
 }) => {
   const baseStyle =
-    "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold cursor-pointer";
+    "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold cursor-pointer disabled:pointer-events-none disabled:opacity-50";
 
   const variants: Record<ButtonVariant, string> = {
     default: "border border-border hover:bg-secondary",

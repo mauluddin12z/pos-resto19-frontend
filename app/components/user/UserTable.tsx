@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Pencil, Trash2, Search } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { UserInterface } from "../../types";
 import IconButton from "../ui/IconButton";
+import Search from "../ui/Search";
 
 interface UserPropsInterface {
   users: UserInterface[];
@@ -87,12 +88,10 @@ export default function UserTable({
         {/* HEADER SEARCH */}
         <div className="border-b border-border p-4">
           <div className="relative max-w-md">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+            <Search
+              searchQuery={search}
+              setSearchQuery={setSearch}
               placeholder="Cari nama atau username..."
-              className="w-full rounded-xl border border-border bg-background py-2 pl-10 pr-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
           </div>
         </div>

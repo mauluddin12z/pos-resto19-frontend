@@ -1,37 +1,41 @@
 "use client";
-
-import React, { useMemo, useState, useCallback } from "react";
-import { TrendingUp, ShoppingBag, DollarSign, Users } from "lucide-react";
-
+import GlobalFilter from "../components/sales/GlobalFilter";
 import MainLayout from "../components/layout/MainLayout";
-import { useOrders } from "../api/orderServices";
 import { PageShell } from "../components/ui/PageShell";
-import Loading from "../loading";
 import useSalesAnalytics from "../hooks/useSalesAnalytics";
-
-import { priceFormat } from "../utils/priceFormat";
-import RangeFilter from "../components/sales/RangeFilter";
+import { useOrders } from "../api/orderServices";
+import useGlobalFilter from "../hooks/useGlobalOrderFilter";
 import StatsGrid from "../components/sales/StatsGrid";
 import SalesChart from "../components/sales/SalesChart";
 import TopItems from "../components/sales/TopItems";
 import PaymentList from "../components/sales/PaymentList";
 import CategoryList from "../components/sales/CategoryList";
+import { priceFormat } from "../utils/priceFormat";
+import { DollarSign, Eye, ShoppingBag, TrendingUp, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useDebounce } from "../hooks/useDebounce";
+import { OrderInterface } from "../types";
+import Modal from "../components/ui/Modal";
+import SalesTransactionTable from "../components/sales/SalesTransactionTable";
 
 export default function PenjualanPage() {
-  const [filters, setFilters] = useState({
-    page: 1,
-    pageSize: 100,
-    paymentStatus: "paid",
-    sortBy: "createdAt",
-    sortOrder: "desc",
-    dateRange: "thisWeek",
-  });
-
+  const { filters, updateFilter, setDate, setDateRange } = useGlobalFilter();
+  const [searchQuery, setSearchQuery] = useState("");
   const { orders, isLoading } = useOrders(filters);
   const orderList = orders?.data ?? [];
+  console.log(orderList);
+
+  const [selectedOrder, setSelectedOrder] = useState<OrderInterface | null>(
+    null,
+  );
+
+  const debouncedSearch = useDebounce(searchQuery, 300);
+
+  useEffect(() => {
+    updateFilter("searchQuery", debouncedSearch);
+  }, [debouncedSearch]);
 
   const analytics = useSalesAnalytics(orderList, filters.dateRange);
-
   const stats = useMemo(
     () => [
       {
@@ -66,9 +70,11 @@ export default function PenjualanPage() {
     [analytics],
   );
 
-  const changeRange = useCallback((range: string) => {
-    setFilters((p) => ({ ...p, dateRange: range }));
-  }, []);
+  const statusLabel: Record<string, string> = {
+    semua: "Semua",
+    paid: "Lunas",
+    unpaid: "Belum Bayar",
+  };
 
   return (
     <MainLayout>
@@ -77,7 +83,13 @@ export default function PenjualanPage() {
         description={`Ringkasan performa penjualan ${analytics.period}`}
       >
         <div className="p-4">
-          <RangeFilter value={filters.dateRange} onChange={changeRange} isLoading={isLoading} />
+          <GlobalFilter
+            filters={filters}
+            updateFilter={updateFilter}
+            setDate={setDate}
+            setDateRange={setDateRange}
+            isLoading={isLoading}
+          />
           <StatsGrid stats={stats} />
           <div className="mt-5 grid gap-5 lg:grid-cols-[1.6fr_1fr]">
             <SalesChart
@@ -91,8 +103,69 @@ export default function PenjualanPage() {
             <PaymentList data={analytics.paymentList} isLoading={isLoading} />
             <CategoryList data={analytics.categoryList} isLoading={isLoading} />
           </div>
+
+          <SalesTransactionTable
+            orders={orderList}
+            pagination={orders?.pagination}
+            filters={filters}
+            updateFilter={updateFilter}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            statusLabel={statusLabel}
+          />
+
         </div>
       </PageShell>
+      <Modal
+        isOpen={!!selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+        title={`Detail Transaksi #${selectedOrder?.orderId}`}
+        description="Rincian item, kasir, pembayaran, dan catatan pesanan."
+      >
+        {selectedOrder && (
+          <div className="space-y-4">
+            <div className="grid gap-3 rounded-xl border border-border bg-muted/30 p-4 sm:grid-cols-2">
+              <div>
+                <p className="text-xs text-muted-foreground">Metode</p>
+                <p className="font-semibold">
+                  {selectedOrder.paymentMethod ?? "—"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Status</p>
+                <p className="font-semibold">
+                  {statusLabel[selectedOrder.paymentStatus]}
+                </p>
+              </div>
+            </div>
+            <div className="space-y-2">
+              {selectedOrder.orderDetails.map((detail) => (
+                <div
+                  key={detail.orderDetailId}
+                  className="flex items-center justify-between rounded-xl border border-border p-3"
+                >
+                  <div>
+                    <p className="font-semibold">{detail.menu.menuName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {detail.quantity} x {priceFormat(detail.price)}
+                      {detail.notes ? ` • ${detail.notes}` : ""}
+                    </p>
+                  </div>
+                  <p className="font-bold tabular-nums">
+                    {priceFormat(detail.subtotal)}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between border-t border-border pt-4">
+              <span className="font-semibold">Total Transaksi</span>
+              <span className="text-xl font-bold tabular-nums">
+                {priceFormat(selectedOrder.total)}
+              </span>
+            </div>
+          </div>
+        )}
+      </Modal>
     </MainLayout>
   );
 }

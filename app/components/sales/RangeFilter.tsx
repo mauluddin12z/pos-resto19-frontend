@@ -1,12 +1,13 @@
-type RangeType = "thisWeek" | "thisMonth" | "thisYear";
+type RangeType = "today" | "thisWeek" | "thisMonth" | "thisYear";
 
 const LABELS: Record<RangeType, string> = {
+  today: "Hari Ini",
   thisWeek: "Minggu Ini",
   thisMonth: "Bulan Ini",
   thisYear: "Tahun Ini",
 };
 
-const OPTIONS: RangeType[] = ["thisWeek", "thisMonth", "thisYear"];
+const OPTIONS: RangeType[] = ["today", "thisWeek", "thisMonth", "thisYear"];
 
 type Props = {
   value: string;
