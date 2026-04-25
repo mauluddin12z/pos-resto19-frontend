@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { AxiosError } from "axios";
 import { updateOrder } from "../api/orderServices";
-import { useGlobalAlert } from "../context/AlertContext";
 import { MESSAGES } from "../constants/messages";
+import { toast } from "react-hot-toast/headless";
 
 interface PaymentPropsInterface {
   orderId: number;
@@ -10,7 +10,6 @@ interface PaymentPropsInterface {
 }
 
 const usePayment = ({ orderId, mutate }: PaymentPropsInterface) => {
-  const { showAlert } = useGlobalAlert();
   const paymentOptions = ["CASH", "QRIS", "BANK"];
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [paymentSuccess, setPaymentSuccess] = useState<boolean>(false);
@@ -25,11 +24,9 @@ const usePayment = ({ orderId, mutate }: PaymentPropsInterface) => {
 
   // Handle the payment logic
   const handlePayment = async (onCloseModal?: () => void) => {
+    const toastId = toast.loading("Sedang memproses pembayaran...");
     if (!isValidPaymentMethod()) {
-      showAlert({
-        type: "error",
-        message: MESSAGES.PAYMENT.REQUIRED_METHOD,
-      });
+      toast.error(MESSAGES.PAYMENT.REQUIRED_METHOD, { id: toastId });
       return;
     }
 
@@ -56,15 +53,9 @@ const usePayment = ({ orderId, mutate }: PaymentPropsInterface) => {
           error.message ||
           "Terjadi kesalahan. Silakan coba lagi.";
 
-        showAlert({
-          type: "error",
-          message: MESSAGES.GENERAL.ERROR || errorMessage,
-        });
+        toast.error(MESSAGES.GENERAL.ERROR || errorMessage, { id: toastId });
       } else {
-        showAlert({
-          type: "error",
-          message: MESSAGES.GENERAL.UNKNOWN,
-        });
+        toast.error(MESSAGES.GENERAL.UNKNOWN, { id: toastId });
       }
     } finally {
       setIsSubmitting(false);

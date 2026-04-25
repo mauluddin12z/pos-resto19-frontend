@@ -6,12 +6,11 @@ import { createOrder, deleteOrder, updateOrder } from "../api/orderServices";
 import { useState } from "react";
 import { CartInterface, CartItemInterface, UserInterface } from "../types";
 import { AxiosError } from "axios";
-import { useGlobalAlert } from "../context/AlertContext";
 import { useAuth } from "../context/AuthContext";
 import { MESSAGES } from "../constants/messages";
+import toast from "react-hot-toast";
 
 const useOrderActions = () => {
-  const { showAlert } = useGlobalAlert();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   // Create new order
@@ -25,14 +24,11 @@ const useOrderActions = () => {
     const orderFormData = new FormData();
     orderFormData.append("userId", user?.userId?.toString() || "");
     orderFormData.append("total", cart.total);
-
+    const toastId = toast.loading("Sedang membuat pesanan...");
     try {
       const orderResponse = await createOrder(orderFormData);
       if (!orderResponse?.data?.orderId) {
-        showAlert({
-          type: "error",
-          message: MESSAGES.ORDER.CREATE_FAILED,
-        });
+        toast.error(MESSAGES.ORDER.CREATE_FAILED, { id: toastId });
         throw new Error("Order creation failed: Missing orderId");
       }
 
@@ -57,24 +53,19 @@ const useOrderActions = () => {
       setCart({ total: "0", cartItems: [] });
       localStorage.removeItem("cart");
 
-      showAlert({
-        type: "success",
-        message: MESSAGES.ORDER.CREATE_SUCCESS || orderResponse?.message,
+      toast.success(MESSAGES.ORDER.CREATE_SUCCESS || orderResponse?.message, {
+        id: toastId,
       });
     } catch (error: any) {
       if (error instanceof AxiosError) {
-        showAlert({
-          type: "error",
-          message:
+        toast.error(
+          MESSAGES.GENERAL.ERROR ||
             error?.response?.data?.message ||
-            error.message ||
-            MESSAGES.GENERAL.ERROR,
-        });
+            error.message,
+          { id: toastId },
+        );
       } else {
-        showAlert({
-          type: "error",
-          message: MESSAGES.GENERAL.UNKNOWN,
-        });
+        toast.error(MESSAGES.GENERAL.UNKNOWN, { id: toastId });
       }
     } finally {
       if (onCloseModal) onCloseModal();
@@ -93,6 +84,7 @@ const useOrderActions = () => {
     onCloseModal?: () => void,
   ): Promise<void> => {
     setIsSubmitting(true);
+    const toastId = toast.loading("Sedang memperbarui pesanan...");
     try {
       const formData = new FormData();
       formData.append("total", total);
@@ -115,24 +107,17 @@ const useOrderActions = () => {
         await createOrderDetail(detailFormData);
       }
 
-      showAlert({
-        type: "success",
-        message: MESSAGES.ORDER.UPDATE_SUCCESS,
-      });
+      toast.success(MESSAGES.ORDER.UPDATE_SUCCESS, { id: toastId });
     } catch (error: any) {
       if (error instanceof AxiosError) {
-        showAlert({
-          type: "error",
-          message:
-            MESSAGES.GENERAL.ERROR ||
+        toast.error(
+          MESSAGES.GENERAL.ERROR ||
             error?.response?.data?.message ||
             error.message,
-        });
+          { id: toastId },
+        );
       } else {
-        showAlert({
-          type: "error",
-          message: MESSAGES.ORDER.UPDATE_FAILED,
-        });
+        toast.error(MESSAGES.ORDER.UPDATE_FAILED, { id: toastId });
       }
     } finally {
       if (onCloseModal) onCloseModal();
@@ -148,27 +133,21 @@ const useOrderActions = () => {
     onCloseModal?: () => void,
   ): Promise<void> => {
     setIsSubmitting(true);
+    const toastId = toast.loading("Sedang menghapus pesanan...");
     try {
       await deleteOrder(orderId);
 
-      showAlert({
-        type: "success",
-        message: MESSAGES.ORDER.DELETE_SUCCESS,
-      });
+      toast.success(MESSAGES.ORDER.DELETE_SUCCESS, { id: toastId });
     } catch (error: any) {
       if (error instanceof AxiosError) {
-        showAlert({
-          type: "error",
-          message:
-            MESSAGES.GENERAL.ERROR ||
+        toast.error(
+          MESSAGES.GENERAL.ERROR ||
             error?.response?.data?.message ||
             error.message,
-        });
+          { id: toastId },
+        );
       } else {
-        showAlert({
-          type: "error",
-          message: MESSAGES.ORDER.DELETE_FAILED,
-        });
+        toast.error(MESSAGES.ORDER.DELETE_FAILED, { id: toastId });
       }
     } finally {
       if (onCloseModal) onCloseModal();

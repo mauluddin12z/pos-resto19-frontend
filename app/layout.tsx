@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Roboto from "next/font/local";
 import "./globals.css";
-import { AlertProvider } from "./context/AlertContext";
 import { AuthProvider } from "./context/AuthContext";
+import { Toaster } from "react-hot-toast";
 
 const roboto = Roboto({
   src: [
@@ -70,7 +70,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${roboto.variable} antialiased`}>
         <AuthProvider>
-          <AlertProvider>{children}</AlertProvider>
+          <Toaster position="top-center" reverseOrder={false} />
+          {children}
         </AuthProvider>
       </body>
     </html>

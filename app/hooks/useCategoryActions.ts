@@ -1,15 +1,13 @@
+import toast from "react-hot-toast";
 import {
   createCategory,
   deleteCategory,
   updateCategory,
 } from "../api/categoryServices";
 import { MESSAGES } from "../constants/messages";
-import { useGlobalAlert } from "../context/AlertContext";
 import { CategoryFormInterface } from "../types";
 
 export default function useCategoryActions() {
-  const { showAlert } = useGlobalAlert();
-
   const validateCategoryForm = (formData: { categoryName: string }) => {
     const errors = { categoryName: "" };
     if (!formData.categoryName.trim()) {
@@ -39,23 +37,21 @@ export default function useCategoryActions() {
       setIsSubmitting(false);
       return;
     }
-
+    const toastId = toast.loading("Sedang menambahkan kategori...");
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("categoryName", formData.categoryName);
       const res = await createCategory(formDataToSend);
-      showAlert({
-        type: "success",
-        message: MESSAGES.CATEGORY.CREATE_SUCCESS || res?.message,
+      toast.success(MESSAGES.CATEGORY.CREATE_SUCCESS || res?.message, {
+        id: toastId,
       });
     } catch (error: any) {
-      showAlert({
-        type: "error",
-        message:
-          MESSAGES.GENERAL.ERROR ||
+      toast.error(
+        MESSAGES.GENERAL.ERROR ||
           error?.response?.data?.message ||
           error.message,
-      });
+        { id: toastId },
+      );
     } finally {
       mutate();
       closeAddModal();
@@ -86,25 +82,22 @@ export default function useCategoryActions() {
       setIsSubmitting(false);
       return;
     }
-
+    const toastId = toast.loading("Sedang memperbarui kategori...");
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("categoryName", formData.categoryName);
       formDataToSend.append("categoryId", categoryId.toString());
       const res = await updateCategory(categoryId, formDataToSend);
-
-      showAlert({
-        type: "success",
-        message: MESSAGES.CATEGORY.UPDATE_SUCCESS || res?.message,
+      toast.success(MESSAGES.CATEGORY.UPDATE_SUCCESS || res?.message, {
+        id: toastId,
       });
     } catch (error: any) {
-      showAlert({
-        type: "error",
-        message:
-          MESSAGES.GENERAL.ERROR ||
+      toast.error(
+        MESSAGES.GENERAL.ERROR ||
           error?.response?.data?.message ||
           error.message,
-      });
+        { id: toastId },
+      );
     } finally {
       mutate();
       closeEditModal();
@@ -124,20 +117,19 @@ export default function useCategoryActions() {
     mutate: () => void;
   }) => {
     setIsDeleting(true);
+    const toastId = toast.loading("Sedang menghapus kategori...");
     try {
       const res = await deleteCategory(categoryId);
-      showAlert({
-        type: "success",
-        message: MESSAGES.CATEGORY.DELETE_SUCCESS || res?.message,
+      toast.success(MESSAGES.CATEGORY.DELETE_SUCCESS || res?.message, {
+        id: toastId,
       });
     } catch (error: any) {
-      showAlert({
-        type: "error",
-        message:
-          MESSAGES.GENERAL.ERROR ||
+      toast.error(
+        MESSAGES.GENERAL.ERROR ||
           error?.response?.data?.message ||
           error.message,
-      });
+        { id: toastId },
+      );
     } finally {
       mutate();
       closeDeleteModal();

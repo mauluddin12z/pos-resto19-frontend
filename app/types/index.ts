@@ -37,13 +37,6 @@ export interface UserFormInterface {
   role: string;
 }
 
-export type AlertType = "success" | "error" | "warning" | "info";
-
-export interface AlertPropsInterface {
-  type: AlertType;
-  message: string;
-  onClose: () => void;
-}
 
 export interface MenuFilterInterface {
   categoryId?: number | null;

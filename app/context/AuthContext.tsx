@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import useSWR from "swr";
 import axiosInstance from "../api/axiosInstance";
 import { logout } from "../api/auth";
+import toast from "react-hot-toast";
 
 interface Session {
   userId: number;
@@ -44,11 +45,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Logout handler
   const handleLogout = async () => {
+    const toastId = toast.loading("Sedang logout...");
     try {
       await logout();
       await mutate(null, false);
+      toast.success("Anda berhasil logout", { id: toastId });
     } catch (error) {
-      console.error("Error occurred while logging out:", error);
+      console.error("Terjadi kesalahan saat logout:", error);
+      toast.error(`Terjadi kesalahan saat logout: ${error}`, { id: toastId });
     }
   };
 

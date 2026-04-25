@@ -1,14 +1,12 @@
 import { createMenu, updateMenu, deleteMenu } from "@/app/api/menuServices";
-import { useGlobalAlert } from "../context/AlertContext";
 import { MenuFormInterface } from "../types";
 import { MESSAGES } from "../constants/messages";
+import { toast } from "react-hot-toast/headless";
 
 /**
  * Custom hook to manage Menu-related actions
  */
 const useMenuActions = () => {
-  const { showAlert } = useGlobalAlert();
-
   /**
    * Validates menu form data and returns error messages
    */
@@ -69,7 +67,7 @@ const useMenuActions = () => {
       setIsSubmitting(false);
       return;
     }
-
+    const toastId = toast.loading("Sedang menambahkan menu...");
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("menuName", formData.menuName);
@@ -84,18 +82,16 @@ const useMenuActions = () => {
 
       const res = await createMenu(formDataToSend);
 
-      showAlert({
-        type: "success",
-        message: MESSAGES.MENU.CREATE_SUCCESS || res?.message,
+      toast.success(MESSAGES.MENU.CREATE_SUCCESS || res?.message, {
+        id: toastId,
       });
     } catch (error: any) {
-      showAlert({
-        type: "error",
-        message:
-          MESSAGES.GENERAL.ERROR ||
+      toast.error(
+        MESSAGES.GENERAL.ERROR ||
           error?.response?.data?.message ||
           error.message,
-      });
+        { id: toastId },
+      );
     } finally {
       mutate();
       closeAddModal();
@@ -131,7 +127,7 @@ const useMenuActions = () => {
       setIsSubmitting(false);
       return;
     }
-
+    const toastId = toast.loading("Sedang memperbarui menu...");
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("menuName", formData.menuName);
@@ -146,18 +142,16 @@ const useMenuActions = () => {
 
       const res = await updateMenu(menuId, formDataToSend);
 
-      showAlert({
-        type: "success",
-        message: MESSAGES.MENU.UPDATE_SUCCESS || res?.message,
+      toast.success(MESSAGES.MENU.UPDATE_SUCCESS || res?.message, {
+        id: toastId,
       });
     } catch (error: any) {
-      showAlert({
-        type: "error",
-        message:
-          MESSAGES.GENERAL.ERROR ||
+      toast.error(
+        MESSAGES.GENERAL.ERROR ||
           error?.response?.data?.message ||
           error.message,
-      });
+        { id: toastId },
+      );
     } finally {
       mutate();
       closeEditModal();
@@ -180,21 +174,19 @@ const useMenuActions = () => {
     mutate: () => void;
   }) => {
     setIsDeleting(true);
-
+    const toastId = toast.loading("Sedang menghapus menu...");
     try {
       const res = await deleteMenu(menuId);
-      showAlert({
-        type: "success",
-        message: MESSAGES.MENU.DELETE_SUCCESS || res?.message,
+      toast.success(MESSAGES.MENU.DELETE_SUCCESS || res?.message, {
+        id: toastId,
       });
     } catch (error: any) {
-      showAlert({
-        type: "error",
-        message:
-          MESSAGES.GENERAL.ERROR ||
+      toast.error(
+        MESSAGES.GENERAL.ERROR ||
           error?.response?.data?.message ||
           error.message,
-      });
+        { id: toastId },
+      );
     } finally {
       mutate();
       setIsDeleting(false);

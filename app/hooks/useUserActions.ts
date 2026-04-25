@@ -1,14 +1,12 @@
+import toast from "react-hot-toast";
 import { createUser, deleteUser, updateUser } from "../api/userServices";
 import { MESSAGES } from "../constants/messages";
-import { useGlobalAlert } from "../context/AlertContext";
 import { UserFormInterface } from "../types";
 
 /**
  * Custom hook to manage User-related actions
  */
 const useUserActions = () => {
-  const { showAlert } = useGlobalAlert();
-
   /**
    * Validates User form data and returns error messages
    */
@@ -65,7 +63,7 @@ const useUserActions = () => {
       setIsSubmitting(false);
       return;
     }
-
+    const toastId = toast.loading("Sedang menambahkan pengguna...");
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("name", formData.name);
@@ -74,19 +72,16 @@ const useUserActions = () => {
       formDataToSend.append("role", formData.role);
 
       const res = await createUser(formDataToSend);
-
-      showAlert({
-        type: "success",
-        message: MESSAGES.USER.CREATE_SUCCESS || res?.message,
+      toast.success(MESSAGES.USER.CREATE_SUCCESS || res?.message, {
+        id: toastId,
       });
     } catch (error: any) {
-      showAlert({
-        type: "error",
-        message:
-          MESSAGES.GENERAL.ERROR ||
+      toast.error(
+        MESSAGES.GENERAL.ERROR ||
           error?.response?.data?.message ||
           error.message,
-      });
+        { id: toastId },
+      );
     } finally {
       mutate();
       closeAddModal();
@@ -122,7 +117,7 @@ const useUserActions = () => {
       setIsSubmitting(false);
       return;
     }
-
+    const toastId = toast.loading("Sedang memperbarui pengguna...");
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("userId", formData.userId?.toString() || "");
@@ -132,19 +127,16 @@ const useUserActions = () => {
       formDataToSend.append("role", formData.role);
 
       const res = await updateUser(userId, formDataToSend);
-
-      showAlert({
-        type: "success",
-        message: MESSAGES.USER.UPDATE_SUCCESS || res?.message,
+      toast.success(MESSAGES.USER.UPDATE_SUCCESS || res?.message, {
+        id: toastId,
       });
     } catch (error: any) {
-      showAlert({
-        type: "error",
-        message:
-          MESSAGES.GENERAL.ERROR ||
+      toast.error(
+        MESSAGES.GENERAL.ERROR ||
           error?.response?.data?.message ||
           error.message,
-      });
+        { id: toastId },
+      );
     } finally {
       mutate();
       closeEditModal();
@@ -167,21 +159,19 @@ const useUserActions = () => {
     mutate: () => void;
   }) => {
     setIsDeleting(true);
-
+    const toastId = toast.loading("Sedang menghapus pengguna...");
     try {
       const res = await deleteUser(userId);
-      showAlert({
-        type: "success",
-        message: MESSAGES.USER.DELETE_SUCCESS || res?.message,
+      toast.success(MESSAGES.USER.DELETE_SUCCESS || res?.message, {
+        id: toastId,
       });
     } catch (error: any) {
-      showAlert({
-        type: "error",
-        message:
-          MESSAGES.GENERAL.ERROR ||
+      toast.error(
+        MESSAGES.GENERAL.ERROR ||
           error?.response?.data?.message ||
           error.message,
-      });
+        { id: toastId },
+      );
     } finally {
       mutate();
       closeDeleteModal();

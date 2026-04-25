@@ -58,7 +58,7 @@ export default function MenuTable({
 
           <td className="px-4 py-3 text-center">
             <span
-              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ${
+              className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold text-nowrap ${
                 m.stock > 20
                   ? "bg-green-100 text-green-700"
                   : m.stock > 0

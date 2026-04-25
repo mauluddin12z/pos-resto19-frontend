@@ -61,7 +61,7 @@ const Cart: React.FC<CartPropsInterface> = ({
         {cartItems.length > 0 && (
           <button
             onClick={handleClearAll}
-            className="flex h-9 w-9 items-center justify-center rounded-lg border border-destructive/30 text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground"
+            className="flex h-9 w-9 items-center justify-center rounded-lg border border-destructive/30 text-destructive transition-colors hover:bg-destructive hover:text-destructive-foreground cursor-pointer"
           >
             <Trash2 className="h-4 w-4" />
           </button>
