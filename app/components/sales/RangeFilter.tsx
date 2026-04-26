@@ -29,7 +29,7 @@ export default function RangeFilter({ value, onChange, isLoading }: Props) {
   if (isLoading) return <RangeFilterSkeleton />;
 
   return (
-    <div className="flex gap-2 mb-4">
+    <div className="flex flex-wrap gap-2 mb-4">
       {OPTIONS.map((opt) => (
         <button
           key={opt}

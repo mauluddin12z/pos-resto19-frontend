@@ -158,8 +158,7 @@ function calculatePaymentStats(orderList: OrderInterface[]) {
   const paymentStats: Record<string, number> = {};
 
   orderList.forEach((order) => {
-    const method = order.paymentMethod || "UNKNOWN";
-
+    const method = order.paymentMethod || "Tidak diketahui";
     if (!paymentStats[method]) paymentStats[method] = 0;
     paymentStats[method] += order.total || 0;
   });

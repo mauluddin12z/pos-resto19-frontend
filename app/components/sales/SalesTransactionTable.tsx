@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye } from "lucide-react";
+import { ArrowLeft, ArrowRight, Eye } from "lucide-react";
 import { Button } from "../ui/Button";
 import Search from "../ui/Search";
 import {
@@ -56,6 +56,7 @@ export default function SalesTransactionTable({
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             placeholder="Cari order, kasir, menu..."
+            width="max-w-fit"
           />
         </div>
       </div>
@@ -85,7 +86,7 @@ export default function SalesTransactionTable({
               <TableCell>{order.orderDetails.length} item</TableCell>
 
               <TableCell>
-                <span className="rounded-full bg-primary-soft px-2 py-1 text-xs font-semibold text-primary">
+                <span className="rounded-full bg-primary-soft px-2 py-1 text-xs font-semibold text-primary text-nowrap">
                   {statusLabel[order.paymentStatus]}
                 </span>
               </TableCell>
@@ -115,16 +116,16 @@ export default function SalesTransactionTable({
         </span>
 
         <div className="flex gap-2">
-          <Button
-            variant="default"
+          <button
+            type="button"
             disabled={filters.page === 1}
             onClick={() => updateFilter("page", Math.max(1, filters.page - 1))}
+            className="p-2 aspect-square border border-border hover:bg-secondary rounded-md disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Sebelumnya
-          </Button>
-
-          <Button
-            variant="default"
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
             disabled={pagination?.hasNextPage === false}
             onClick={() =>
               updateFilter(
@@ -132,9 +133,10 @@ export default function SalesTransactionTable({
                 Math.min(pagination?.totalPages, filters.page + 1),
               )
             }
+            className="p-2 aspect-square border border-border hover:bg-secondary rounded-md disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Berikutnya
-          </Button>
+            <ArrowRight className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
