@@ -1,29 +1,37 @@
 "use client";
-import GlobalFilter from "../components/sales/GlobalFilter";
-import MainLayout from "../components/layout/MainLayout";
-import { PageShell } from "../components/ui/PageShell";
-import useSalesAnalytics from "../hooks/useSalesAnalytics";
-import { useOrders } from "../api/orderServices";
-import useGlobalFilter from "../hooks/useGlobalOrderFilter";
-import StatsGrid from "../components/sales/StatsGrid";
-import SalesChart from "../components/sales/SalesChart";
-import TopItems from "../components/sales/TopItems";
-import PaymentList from "../components/sales/PaymentList";
-import CategoryList from "../components/sales/CategoryList";
-import { priceFormat } from "../utils/priceFormat";
-import { DollarSign, Eye, ShoppingBag, TrendingUp, Users } from "lucide-react";
+import GlobalFilter from "@/components/sales/GlobalFilter";
+import MainLayout from "@/components/layout/MainLayout";
+import { PageShell } from "@/components/ui/PageShell";
+import useSalesAnalytics from "@/hooks/useSalesAnalytics";
+import { useOrders } from "@/api/orderServices";
+import useGlobalFilter from "@/hooks/useGlobalOrderFilter";
+import StatsGrid from "@/components/sales/StatsGrid";
+import SalesChart from "@/components/sales/SalesChart";
+import TopItems from "@/components/sales/TopItems";
+import PaymentList from "@/components/sales/PaymentList";
+import CategoryList from "@/components/sales/CategoryList";
+import { priceFormat } from "@/utils/priceFormat";
+import {
+  DollarSign,
+  Download,
+  Eye,
+  ShoppingBag,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useDebounce } from "../hooks/useDebounce";
-import { OrderInterface } from "../types";
-import Modal from "../components/ui/Modal";
-import SalesTransactionTable from "../components/sales/SalesTransactionTable";
+import { useDebounce } from "@/hooks/useDebounce";
+import { OrderDetailInterface, OrderInterface } from "@/types";
+import Modal from "@/components/ui/Modal";
+import SalesTransactionTable from "@/components/sales/SalesTransactionTable";
+import { exportToCSV, exportToXLSX } from "@/utils/export";
+import momentInstance from "@/utils/momentConfig";
 
 export default function PenjualanPage() {
   const { filters, updateFilter, setDate, setDateRange } = useGlobalFilter();
   const [searchQuery, setSearchQuery] = useState("");
   const { orders, isLoading } = useOrders(filters);
   const orderList = orders?.data ?? [];
-  console.log(orderList);
 
   const [selectedOrder, setSelectedOrder] = useState<OrderInterface | null>(
     null,
@@ -76,6 +84,70 @@ export default function PenjualanPage() {
     unpaid: "Belum Bayar",
   };
 
+  const mapOrders = () => {
+    return orderList.flatMap((order: OrderInterface) =>
+      order.orderDetails.map((d: OrderDetailInterface, i: number) => ({
+        orderId: i === 0 ? order.orderId : "",
+        tanggal:
+          i === 0
+            ? momentInstance(order?.createdAt).format("DD MMMM YYYY HH:mm")
+            : "",
+        item: d.menu.menuName,
+        qty: d.quantity,
+        subtotal: d.subtotal,
+        total: i === 0 ? order.total : "",
+        metode: i === 0 ? (order.paymentMethod ?? "—") : "",
+        status: i === 0 ? statusLabel[order.paymentStatus] : "",
+      })),
+    );
+  };
+
+  const exportCSV = () => {
+    const mapped = mapOrders();
+
+    exportToCSV({
+      filename: `penjualan_${filters.fromDate || "all"}_${filters.toDate || "all"}.csv`,
+      headers: [
+        "Order ID",
+        "Tanggal",
+        "Item",
+        "Qty",
+        "Subtotal",
+        "Total",
+        "Metode Pembayaran",
+        "Status",
+      ],
+      rows: mapped.map((r: any) => [
+        r.orderId,
+        r.tanggal,
+        r.item,
+        r.qty,
+        r.subtotal,
+        r.total,
+        r.metode,
+        r.status,
+      ]),
+    });
+  };
+
+  const exportXLSX = async () => {
+    const mapped = mapOrders();
+
+    await exportToXLSX({
+      filename: `penjualan_${JSON.stringify(filters)} || "all"}.xlsx`,
+      data: mapped.map((r: any) => ({
+        "Order ID": r.orderId,
+        Tanggal: r.tanggal,
+        Item: r.item,
+        Qty: r.qty,
+        Subtotal: r.subtotal,
+        Total: r.total,
+        "Metode Pembayaran": r.metode,
+        Status: r.status,
+      })),
+    });
+  };
+
   return (
     <MainLayout>
       <PageShell
@@ -89,6 +161,8 @@ export default function PenjualanPage() {
             setDate={setDate}
             setDateRange={setDateRange}
             isLoading={isLoading}
+            exportCSV={exportCSV}
+            exportXLSX={exportXLSX}
           />
           <StatsGrid stats={stats} />
           <div className="mt-5 grid gap-5 lg:grid-cols-[1.6fr_1fr]">
@@ -113,7 +187,6 @@ export default function PenjualanPage() {
             setSearchQuery={setSearchQuery}
             statusLabel={statusLabel}
           />
-
         </div>
       </PageShell>
       <Modal

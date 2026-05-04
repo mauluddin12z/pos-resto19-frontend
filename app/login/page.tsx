@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import React, { useState, FormEvent } from "react";
-import { login } from "@/app/api/auth";
-import LoadingButton from "../components/ui/LoadingButton";
+import { login } from "@/api/auth";
+import LoadingButton from "@/components/ui/LoadingButton";
 
 export default function Page() {
    const [username, setUsername] = useState<string>("");

@@ -1,20 +1,20 @@
 "use client";
 import React, { useEffect, useState, useCallback } from "react";
-import MainLayout from "../components/layout/MainLayout";
-import MenuFilters from "../components/menu/MenuFilters";
-import MenuGrid from "../components/menu/MenuGrid";
-import Pagination from "../components/ui/Pagination";
-import useCart from "@/app/hooks/useCart";
-import { useMenus } from "@/app/api/menuServices";
-import { MenuFilterInterface } from "../types";
-import Modal from "../components/ui/Modal";
-import Search from "../components/ui/Search";
-import { useOrders } from "../api/orderServices";
-import Cart from "../components/cart/Cart";
-import ShowCartModalButton from "../components/cart/ShowCartModalButton";
-import useOrderActions from "../hooks/useOrderActions";
-import { useCategories } from "../api/categoryServices";
-import { useDebounce } from "../hooks/useDebounce";
+import MainLayout from "@/components/layout/MainLayout";
+import MenuFilters from "@/components/menu/MenuFilters";
+import MenuGrid from "@/components/menu/MenuGrid";
+import Pagination from "@/components/ui/Pagination";
+import useCart from "@/hooks/useCart";
+import { useMenus } from "@/api/menuServices";
+import { MenuFilterInterface } from "@/types";
+import Modal from "@/components/ui/Modal";
+import Search from "@/components/ui/Search";
+import { useOrders } from "@/api/orderServices";
+import Cart from "@/components/cart/Cart";
+import ShowCartModalButton from "@/components/cart/ShowCartModalButton";
+import useOrderActions from "@/hooks/useOrderActions";
+import { useCategories } from "@/api/categoryServices";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export default function Page() {
   const [searchQuery, setSearchQuery] = useState("");

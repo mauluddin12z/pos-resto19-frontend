@@ -1,19 +1,18 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
-import MainLayout from "../components/layout/MainLayout";
-import { CategoryFormInterface, CategoryInterface } from "../types";
-import Pagination from "../components/ui/Pagination";
-import Modal from "../components/ui/Modal";
-import { useCategories } from "../api/categoryServices";
-import useCategoryActions from "../hooks/useCategoryActions";
+import MainLayout from "@/components/layout/MainLayout";
+import { CategoryFormInterface, CategoryInterface } from "@/types";
+import Pagination from "@/components/ui/Pagination";
+import Modal from "@/components/ui/Modal";
+import { useCategories } from "@/api/categoryServices";
+import useCategoryActions from "@/hooks/useCategoryActions";
 import { Pencil, Plus, Trash2, Tag, UtensilsCrossed } from "lucide-react";
-import { PageShell } from "../components/ui/PageShell";
-import IconButton from "../components/ui/IconButton";
-import CategoryForm from "../components/category/CategoryForm";
-import LoadingButton from "../components/ui/LoadingButton";
-import { useMenus } from "../api/menuServices";
-import { Button } from "../components/ui/Button";
+import { PageShell } from "@/components/ui/PageShell";
+import IconButton from "@/components/ui/IconButton";
+import CategoryForm from "@/components/category/CategoryForm";
+import { useMenus } from "@/api/menuServices";
+import { Button } from "@/components/ui/Button";
 
 type DialogState =
   | { mode: "closed" }
@@ -188,7 +187,9 @@ export default function Page() {
               pageSize={categories?.pagination?.pageSize}
               hasNextPage={categories?.pagination?.hasNextPage}
               isLoading={loadingCategories}
-              onPageChange={(page) => setFilters((prev) => ({ ...prev, page }))}
+              onPageChange={(page: number) =>
+                setFilters((prev) => ({ ...prev, page }))
+              }
             />
           </div>
         </div>

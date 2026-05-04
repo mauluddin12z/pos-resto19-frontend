@@ -1,14 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import MainLayout from "../components/layout/MainLayout";
-import { useOrders } from "../api/orderServices";
-import { OrderFilterInterface, OrderInterface, UserInterface } from "../types";
-import { PageShell } from "../components/ui/PageShell";
-import Pagination from "../components/ui/Pagination";
-import OrderDetailPanel from "../components/order/OrderDetailPanel";
-import Search from "../components/ui/Search";
-import OrderTable from "../components/order/OrderTable";
+import MainLayout from "@/components/layout/MainLayout";
+import { useOrders } from "@/api/orderServices";
+import {
+  OrderFilterInterface,
+  OrderInterface,
+  UserInterface,
+} from "@/types";
+import { PageShell } from "@/components/ui/PageShell";
+import Pagination from "@/components/ui/Pagination";
+import OrderDetailPanel from "@/components/order/OrderDetailPanel";
+import Search from "@/components/ui/Search";
+import OrderTable from "@/components/order/OrderTable";
 
 export default function Page() {
   const [orderFilters, setOrderFilters] = useState<OrderFilterInterface>({
@@ -102,7 +106,7 @@ export default function Page() {
                 pageSize={orders?.pagination?.pageSize ?? 10}
                 hasNextPage={orders?.pagination?.hasNextPage ?? false}
                 isLoading={loadingOrders}
-                onPageChange={(page) =>
+                onPageChange={(page: number) =>
                   setOrderFilters((p) => ({ ...p, page }))
                 }
               />

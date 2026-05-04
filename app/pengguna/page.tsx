@@ -1,17 +1,16 @@
 "use client";
 
 import React, { FormEvent, useCallback, useState } from "react";
-import MainLayout from "../components/layout/MainLayout";
-import Modal from "../components/ui/Modal";
-import { useUsers } from "../api/userServices";
-import { PageShell } from "../components/ui/PageShell";
+import MainLayout from "@/components/layout/MainLayout";
+import Modal from "@/components/ui/Modal";
+import { useUsers } from "@/api/userServices";
+import { PageShell } from "@/components/ui/PageShell";
 import { Pencil, Plus, Trash2, UtensilsCrossed } from "lucide-react";
-import UserTable from "../components/user/UserTable";
-import { UserFormInterface, UserInterface } from "../types";
-import UserForm from "../components/user/UserForm";
-import useUserActions from "../hooks/useUserActions";
-import LoadingButton from "../components/ui/LoadingButton";
-import { Button } from "../components/ui/Button";
+import UserTable from "@/components/user/UserTable";
+import { UserFormInterface, UserInterface } from "@/types";
+import UserForm from "@/components/user/UserForm";
+import useUserActions from "@/hooks/useUserActions";
+import { Button } from "@/components/ui/Button";
 
 type DialogState =
   | { mode: "closed" }

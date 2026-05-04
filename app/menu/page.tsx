@@ -1,21 +1,24 @@
 "use client";
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import { Pencil, Plus, Trash2, UtensilsCrossed } from "lucide-react";
-import MainLayout from "../components/layout/MainLayout";
-import { useMenus } from "../api/menuServices";
-import Pagination from "../components/ui/Pagination";
-import Modal from "../components/ui/Modal";
-import { useCategories } from "../api/categoryServices";
-import { PageShell } from "../components/ui/PageShell";
-import MenuTable from "../components/menu/MenuTable";
-import Search from "../components/ui/Search";
-import { CategoryInterface, MenuFormInterface, MenuInterface } from "../types";
-import MenuForm from "../components/menu/MenuForm";
-import useMenuActions from "../hooks/useMenuActions";
-import { priceFormat } from "../utils/priceFormat";
-import LoadingButton from "../components/ui/LoadingButton";
-import { useDebounce } from "../hooks/useDebounce";
-import { Button } from "../components/ui/Button";
+import MainLayout from "@/components/layout/MainLayout";
+import { useMenus } from "@/api/menuServices";
+import Pagination from "@/components/ui/Pagination";
+import Modal from "@/components/ui/Modal";
+import { useCategories } from "@/api/categoryServices";
+import { PageShell } from "@/components/ui/PageShell";
+import MenuTable from "@/components/menu/MenuTable";
+import Search from "@/components/ui/Search";
+import {
+  CategoryInterface,
+  MenuFormInterface,
+  MenuInterface,
+} from "@/types";
+import MenuForm from "@/components/menu/MenuForm";
+import useMenuActions from "@/hooks/useMenuActions";
+import { priceFormat } from "@/utils/priceFormat";
+import { useDebounce } from "@/hooks/useDebounce";
+import { Button } from "@/components/ui/Button";
 
 type DialogState =
   | { mode: "closed" }
@@ -238,7 +241,9 @@ export default function Page() {
               pageSize={menus?.pagination?.pageSize}
               hasNextPage={menus?.pagination?.hasNextPage}
               isLoading={isLoading}
-              onPageChange={(page) => setFilters((prev) => ({ ...prev, page }))}
+              onPageChange={(page: number) =>
+                setFilters((prev) => ({ ...prev, page }))
+              }
             />
           </div>
         </div>
