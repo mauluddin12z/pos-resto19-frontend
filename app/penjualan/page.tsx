@@ -11,14 +11,7 @@ import TopItems from "@/components/sales/TopItems";
 import PaymentList from "@/components/sales/PaymentList";
 import CategoryList from "@/components/sales/CategoryList";
 import { priceFormat } from "@/utils/priceFormat";
-import {
-  DollarSign,
-  Download,
-  Eye,
-  ShoppingBag,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { DollarSign, ShoppingBag, TrendingUp, Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { OrderDetailInterface, OrderInterface } from "@/types";
@@ -154,40 +147,38 @@ export default function PenjualanPage() {
         title="Penjualan"
         description={`Ringkasan performa penjualan ${analytics.period}`}
       >
-        <div className="p-4">
-          <GlobalFilter
-            filters={filters}
-            updateFilter={updateFilter}
-            setDate={setDate}
-            setDateRange={setDateRange}
+        <GlobalFilter
+          filters={filters}
+          updateFilter={updateFilter}
+          setDate={setDate}
+          setDateRange={setDateRange}
+          isLoading={isLoading}
+          exportCSV={exportCSV}
+          exportXLSX={exportXLSX}
+        />
+        <StatsGrid stats={stats} />
+        <div className="mt-5 grid gap-5 lg:grid-cols-[1.6fr_1fr]">
+          <SalesChart
+            data={analytics.salesData}
+            title={`Pendapatan ${analytics.period}`}
             isLoading={isLoading}
-            exportCSV={exportCSV}
-            exportXLSX={exportXLSX}
           />
-          <StatsGrid stats={stats} />
-          <div className="mt-5 grid gap-5 lg:grid-cols-[1.6fr_1fr]">
-            <SalesChart
-              data={analytics.salesData}
-              title={`Pendapatan ${analytics.period}`}
-              isLoading={isLoading}
-            />
-            <TopItems items={analytics.topItems} isLoading={isLoading} />
-          </div>
-          <div className="mt-5 grid gap-5 md:grid-cols-2">
-            <PaymentList data={analytics.paymentList} isLoading={isLoading} />
-            <CategoryList data={analytics.categoryList} isLoading={isLoading} />
-          </div>
-
-          <SalesTransactionTable
-            orders={orderList}
-            pagination={orders?.pagination}
-            filters={filters}
-            updateFilter={updateFilter}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            statusLabel={statusLabel}
-          />
+          <TopItems items={analytics.topItems} isLoading={isLoading} />
         </div>
+        <div className="mt-5 grid gap-5 md:grid-cols-2">
+          <PaymentList data={analytics.paymentList} isLoading={isLoading} />
+          <CategoryList data={analytics.categoryList} isLoading={isLoading} />
+        </div>
+
+        <SalesTransactionTable
+          orders={orderList}
+          pagination={orders?.pagination}
+          filters={filters}
+          updateFilter={updateFilter}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          statusLabel={statusLabel}
+        />
       </PageShell>
       <Modal
         isOpen={!!selectedOrder}

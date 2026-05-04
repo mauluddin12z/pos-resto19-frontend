@@ -17,7 +17,7 @@ type Props = {
 
 function RangeFilterSkeleton() {
   return (
-    <div className="flex gap-2 mb-4 animate-pulse">
+    <div className="flex justify-center items-center gap-2 mb-4 animate-pulse">
       {OPTIONS.map((_, i) => (
         <div key={i} className="h-8 w-24 rounded-lg bg-gray-200" />
       ))}
@@ -29,7 +29,7 @@ export default function RangeFilter({ value, onChange, isLoading }: Props) {
   if (isLoading) return <RangeFilterSkeleton />;
 
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap justify-center items-center gap-2">
       {OPTIONS.map((opt) => (
         <button
           key={opt}

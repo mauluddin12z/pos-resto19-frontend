@@ -63,7 +63,7 @@ export default function Page() {
       <PageShell title="Pesanan" description="Kelola transaksi & pembayaran">
         <div className="grid gap-5 lg:grid-cols-[1.6fr_1fr]">
           {/* ================= TABLE ================= */}
-          <section className="rounded-2xl border bg-card">
+          <section className="min-w-0 rounded-2xl border bg-card">
             {/* FILTER */}
             <div className="flex flex-wrap items-center gap-3 border-b border-border p-4">
               <Search

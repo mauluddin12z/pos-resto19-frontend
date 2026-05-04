@@ -87,7 +87,7 @@ useEffect(() => {
               loadingCategories={loadingCategories}
             />
           </div>
-          <div className="flex-1 overflow-y-auto px-6 py-5">
+          <div className="flex-1 overflow-y-auto px-3 py-1.5 md:px-6 md:py-5">
             <MenuGrid
               menus={menus?.data}
               loading={loadingMenus}

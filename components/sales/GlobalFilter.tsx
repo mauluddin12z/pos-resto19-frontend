@@ -24,23 +24,25 @@ export default function GlobalFilter({
           </p>
         </div>
 
-        <div className="flex gap-2 items-center justify-center">
+        <div className="flex flex-col md:flex-row gap-2 items-center justify-center">
           <RangeFilter
             value={filters.dateRange}
             onChange={setDateRange}
             isLoading={isLoading}
           />
-          <div className="h-6 w-px bg-border self-center mx-1" />
-          <Button type="button" variant="default" onClick={exportCSV}>
-            <span className="inline-flex items-center gap-2">
-              <Download className="mr-1 h-3.5 w-3.5" /> <span>CSV</span>
-            </span>
-          </Button>
-          <Button type="button" variant="default" onClick={exportXLSX}>
-            <span className="inline-flex items-center gap-2">
-              <Download className="mr-1 h-3.5 w-3.5" /> <span>Excel</span>
-            </span>
-          </Button>
+          <div className="md:block hidden h-6 w-px bg-border self-center mx-1" />
+          <div className="flex">
+            <Button type="button" variant="default" onClick={exportCSV}>
+              <span className="inline-flex items-center gap-2">
+                <Download className="mr-1 h-3.5 w-3.5" /> <span>CSV</span>
+              </span>
+            </Button>
+            <Button type="button" variant="default" onClick={exportXLSX}>
+              <span className="inline-flex items-center gap-2">
+                <Download className="mr-1 h-3.5 w-3.5" /> <span>Excel</span>
+              </span>
+            </Button>
+          </div>
         </div>
       </div>
 

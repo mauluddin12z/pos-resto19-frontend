@@ -95,7 +95,7 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="flex w-20 flex-col items-center justify-between border-r border-border bg-card py-4">
+      <aside className="flex w-20 flex-col items-center justify-between border-r border-border bg-card py-4 px-1.5">
         {/* NAVIGATION */}
         <nav className="flex flex-col gap-1">
           {navItems
@@ -119,7 +119,7 @@ export default function Sidebar() {
         {/* LOGOUT */}
         <button
           onClick={() => setIsLogoutModalOpen(true)}
-          className={`${baseClass} ${inactive}`}
+          className={`${baseClass} ${inactive} mb-8`}
         >
           <LogOut className="h-5 w-5" strokeWidth={2} />
           <span>Keluar</span>
