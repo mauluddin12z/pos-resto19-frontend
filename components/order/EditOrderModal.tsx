@@ -25,7 +25,7 @@ interface EditOrderModalProps {
 }
 
 interface EditLine {
-  id: number; // unique row id
+  id: number;
   menuId: number;
   name: string;
   imageUrl: string;
@@ -49,7 +49,7 @@ const EditOrderModal = ({
 
   const [lines, setLines] = useState<EditLine[]>([]);
 
-  // 🔁 Load order
+  // Load order
   useEffect(() => {
     if (!isOpen || !selectedOrder) return;
 
@@ -69,12 +69,12 @@ const EditOrderModal = ({
     setPaymentMethod(selectedOrder.paymentMethod ?? "");
   }, [isOpen, selectedOrder]);
 
-  // 💰 Derived total
+  // Derived total
   const total = useMemo(() => {
     return lines.reduce((acc, item) => acc + item.price * item.quantity, 0);
   }, [lines]);
 
-  // ➕ Add line
+  // Add line
   const addLine = () => {
     setLines((prev) => [
       ...prev,
@@ -96,7 +96,7 @@ const EditOrderModal = ({
     setLines((prev) => prev.filter((l) => l.id !== id));
   };
 
-  // 🔽 Change menu
+  // Change menu
   const changeMenu = (id: number, menuId: number) => {
     const menu = menus?.data?.find((m: MenuInterface) => m.menuId === menuId);
     if (!menu) return;
@@ -137,7 +137,7 @@ const EditOrderModal = ({
     );
   };
 
-  // 💾 Save
+  // Save
   const handleSave = () => {
     if (!selectedOrder) return;
 
@@ -267,12 +267,13 @@ const EditOrderModal = ({
           <span>Total</span>
           <span>{priceFormat(total)}</span>
         </div>
-
-        <PaymentMethod
-          paymentOptions={paymentOptions}
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-        />
+        {selectedOrder.paymentStatus == "paid" && (
+          <PaymentMethod
+            paymentOptions={paymentOptions}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+          />
+        )}
       </div>
     </Modal>
   );
