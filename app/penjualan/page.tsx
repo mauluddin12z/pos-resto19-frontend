@@ -20,10 +20,20 @@ import SalesTransactionTable from "@/components/sales/SalesTransactionTable";
 import { exportToCSV, exportToXLSX } from "@/utils/export";
 import momentInstance from "@/utils/momentConfig";
 
+type RangeType = "today" | "thisWeek" | "thisMonth" | "thisYear";
+
+const LABELS: Record<RangeType, string> = {
+  today: "Hari Ini",
+  thisWeek: "Minggu Ini",
+  thisMonth: "Bulan Ini",
+  thisYear: "Tahun Ini",
+};
+
 export default function PenjualanPage() {
   const { filters, updateFilter, setDate, setDateRange } = useGlobalFilter();
   const [searchQuery, setSearchQuery] = useState("");
   const { orders, isLoading } = useOrders(filters);
+  const { orders: exportedFile } = useOrders({ ...filters, pageSize: 100 });
   const orderList = orders?.data ?? [];
 
   const [selectedOrder, setSelectedOrder] = useState<OrderInterface | null>(
@@ -78,7 +88,7 @@ export default function PenjualanPage() {
   };
 
   const mapOrders = () => {
-    return orderList.flatMap((order: OrderInterface) =>
+    return exportedFile?.data?.flatMap((order: OrderInterface) =>
       order.orderDetails.map((d: OrderDetailInterface, i: number) => ({
         orderId: i === 0 ? order.orderId : "",
         tanggal:
@@ -99,7 +109,10 @@ export default function PenjualanPage() {
     const mapped = mapOrders();
 
     exportToCSV({
-      filename: `penjualan_${filters.fromDate || "all"}_${filters.toDate || "all"}.csv`,
+      filename: `${momentInstance(Date.now()).format("DD-MM-YYYY")}_Penjualan_${
+        (filters.dateRange && LABELS[filters.dateRange as RangeType]) ||
+        `${filters.fromDate}-${filters.toDate}`
+      }.csv`,
       headers: [
         "Order ID",
         "Tanggal",
@@ -127,7 +140,10 @@ export default function PenjualanPage() {
     const mapped = mapOrders();
 
     await exportToXLSX({
-      filename: `penjualan_${JSON.stringify(filters)} || "all"}.xlsx`,
+      filename: `${momentInstance(Date.now()).format("DD-MM-YYYY")}_Penjualan_${
+        (filters.dateRange && LABELS[filters.dateRange as RangeType]) ||
+        `${filters.fromDate}-${filters.toDate}`
+      }.xlsx`,
       data: mapped.map((r: any) => ({
         "Order ID": r.orderId,
         Tanggal: r.tanggal,
