@@ -120,7 +120,7 @@ export default function Page() {
         }
       >
         <UserTable
-          users={users}
+          users={users?.data}
           loading={isLoading}
           mutate={mutate}
           openEdit={openEdit}

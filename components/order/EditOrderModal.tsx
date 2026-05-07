@@ -155,7 +155,6 @@ const EditOrderModal = ({
     handleUpdateOrder(
       selectedOrder.orderId,
       cartItems,
-      total.toString(),
       paymentMethod,
       mutate,
       onClose,

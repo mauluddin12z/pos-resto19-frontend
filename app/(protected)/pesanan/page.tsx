@@ -3,11 +3,7 @@
 import { useState } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { useOrders } from "@/api/orderServices";
-import {
-  OrderFilterInterface,
-  OrderInterface,
-  UserInterface,
-} from "@/types";
+import { OrderFilterInterface, OrderInterface, UserInterface } from "@/types";
 import { PageShell } from "@/components/ui/PageShell";
 import Pagination from "@/components/ui/Pagination";
 import OrderDetailPanel from "@/components/order/OrderDetailPanel";
@@ -16,18 +12,23 @@ import OrderTable from "@/components/order/OrderTable";
 
 export default function Page() {
   const [orderFilters, setOrderFilters] = useState<OrderFilterInterface>({
-    minTotal: null,
-    maxTotal: null,
-    paymentMethod: "",
     searchQuery: "",
-    page: 1,
-    pageSize: 12,
-    sortBy: "createdAt",
-    sortOrder: "desc",
-    dateRange: "",
+
+    paymentMethod: "",
+    paymentStatus: "",
+
+    total: {
+      gte: null,
+      lte: null,
+    },
+
     fromDate: "",
     toDate: "",
-    paymentStatus: "",
+
+    sort: "-createdAt",
+
+    page: 1,
+    pageSize: 12,
   });
 
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -67,7 +68,7 @@ export default function Page() {
             {/* FILTER */}
             <div className="flex flex-wrap items-center gap-3 border-b border-border p-4">
               <Search
-                searchQuery={orderFilters.searchQuery}
+                searchQuery={orderFilters.searchQuery || ""}
                 setSearchQuery={handleSearch}
                 width="min-w-56"
               />
@@ -95,6 +96,8 @@ export default function Page() {
               isLoading={loadingOrders}
               selectedOrderId={selectedOrderId}
               setSelectedOrderId={setSelectedOrderId}
+              updateFilter={setOrderFilters}
+              filters={orderFilters}
             />
 
             {/* PAGINATION */}

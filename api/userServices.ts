@@ -1,60 +1,52 @@
-// -----------------------------
-// API Utility Functions
-// -----------------------------
-
-import useSWR from "swr";
 import axiosInstance from "./axiosInstance";
+import useSWR from "swr";
 
 // Fetch all users
 export const fetchUsers = async () => {
-   const response = await axiosInstance.get("/users");
-   return response.data.data; // Adjust if your API returns differently
+  const response = await axiosInstance.get("/users");
+  return response.data; // 👈 unified with other modules
 };
 
-//get user by id
+// Get user by id
 export const getUserById = async (userId: number) => {
-   const response = await axiosInstance.get(`/user/${userId}`);
-   return response.data;
+  const response = await axiosInstance.get(`/users/${userId}`);
+  return response.data;
 };
 
-// Get Session
+// Get session
 export const getSession = async () => {
-   const response = await axiosInstance.get(`/auth/session`);
-   return response;
+  const response = await axiosInstance.get(`/users/session`);
+  return response.data;
 };
 
-// Create a new user
+// Create user
 export const createUser = async (userData: any) => {
-   const response = await axiosInstance.post("/user", userData);
-   return response.data;
+  const response = await axiosInstance.post("/users", userData);
+  return response.data;
 };
 
-// Update a user by ID
+// Update user
 export const updateUser = async (id: string | number, updatedData: any) => {
-   const response = await axiosInstance.patch(`/user/${id}`, updatedData);
-   return response.data;
+  const response = await axiosInstance.patch(`/users/${id}`, updatedData);
+  return response.data;
 };
 
-// Delete a user by ID
+// Delete user
 export const deleteUser = async (id: string | number) => {
-   const response = await axiosInstance.delete(`/user/${id}`);
-   return response.data;
+  const response = await axiosInstance.delete(`/users/${id}`);
+  return response.data;
 };
-
-// -----------------------------
-// SWR Hook for Fetching Users
-// -----------------------------
 
 export const useUsers = () => {
-   const { data, error, isValidating, mutate } = useSWR("users", fetchUsers, {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-   });
+  const { data, error, mutate } = useSWR("users", fetchUsers, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
 
-   return {
-      users: data,
-      isLoading: !error && !data,
-      isError: error,
-      mutate, // allows you to refresh after changes
-   };
+  return {
+    users: data,
+    isLoading: !data && !error,
+    isError: !!error,
+    mutate,
+  };
 };

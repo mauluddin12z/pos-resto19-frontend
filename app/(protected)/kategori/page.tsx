@@ -50,7 +50,12 @@ export default function Page() {
   const [dialog, setDialog] = useState<DialogState>({ mode: "closed" });
   const [formData, setFormData] = useState(emptyForm);
 
-  const { menus } = useMenus({ categoryId: formData.categoryId });
+  const { menus } = useMenus({
+    categoryId: formData.categoryId ? Number(formData.categoryId) : null,
+    page: 1,
+    pageSize: 100,
+  });
+
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
   const openCreate = () => {

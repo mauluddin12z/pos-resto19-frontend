@@ -5,28 +5,35 @@ import { useState, useCallback, useEffect } from "react";
 export interface GlobalFilterState {
   page: number;
   pageSize: number;
+
   searchQuery: string;
-  paymentStatus: string;
-  paymentMethod: string;
-  sortBy: string;
-  sortOrder: string;
-  fromDate: string;
-  toDate: string;
-  dateRange: string;
+
+  paymentStatus?: string;
+  paymentMethod?: string;
+
+  sort: string;
+
+  fromDate?: string;
+  toDate?: string;
+  dateRange?: string;
 }
 
 export default function useGlobalFilter(initial?: Partial<GlobalFilterState>) {
   const [filters, setFilters] = useState<GlobalFilterState>({
     page: 1,
     pageSize: 10,
+
     searchQuery: "",
-    paymentStatus: "",
+
+    paymentStatus: "paid",
     paymentMethod: "",
-    sortBy: "createdAt",
-    sortOrder: "desc",
+
+    sort: "-createdAt",
+
     fromDate: "",
     toDate: "",
-    dateRange: "today",
+    dateRange: "",
+
     ...initial,
   });
 
@@ -68,15 +75,17 @@ export default function useGlobalFilter(initial?: Partial<GlobalFilterState>) {
   const resetFilters = useCallback(() => {
     setFilters({
       page: 1,
-      pageSize: 100,
+      pageSize: 10,
+
       searchQuery: "",
+
       paymentStatus: "",
       paymentMethod: "",
-      sortBy: "createdAt",
-      sortOrder: "desc",
+
+      sort: "-createdAt",
+
       fromDate: "",
       toDate: "",
-      dateRange: "today",
     });
   }, []);
 

@@ -49,7 +49,7 @@ export default function MenuTable({
           </td>
 
           <td className="px-4 py-3 text-gray-500">
-            {m.category.categoryName || "-"}
+            {m.category?.categoryName || "-"}
           </td>
 
           <td className="px-4 py-3 text-right font-bold tabular-nums">

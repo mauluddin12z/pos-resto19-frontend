@@ -21,54 +21,43 @@ const useOrderActions = () => {
     onCloseModal?: () => void,
   ) => {
     setIsSubmitting(true);
-    const orderFormData = new FormData();
-    orderFormData.append("userId", user?.userId?.toString() || "");
-    orderFormData.append("total", cart.total);
+
     const toastId = toast.loading("Sedang membuat pesanan...");
+
     try {
-      const orderResponse = await createOrder(orderFormData);
-      if (!orderResponse?.data?.orderId) {
-        toast.error(MESSAGES.ORDER.CREATE_FAILED, { id: toastId });
-        throw new Error("Order creation failed: Missing orderId");
-      }
+      const formData = new FormData();
+      formData.append("userId", user?.userId?.toString() || "");
+      formData.append(
+        "items",
+        JSON.stringify(
+          cart.cartItems.map((item) => ({
+            menuId: item.id,
+            quantity: item.quantity,
+            notes: item.notes,
+          })),
+        ),
+      );
 
-      for (const item of cart.cartItems) {
-        const orderDetailFormData = new FormData();
-        orderDetailFormData.append(
-          "orderId",
-          orderResponse.data.orderId.toString(),
-        );
-        orderDetailFormData.append("menuId", item.id.toString());
-        orderDetailFormData.append("quantity", item.quantity.toString());
-        orderDetailFormData.append("price", item.price.toString());
-        orderDetailFormData.append(
-          "subtotal",
-          (item.price * item.quantity).toString(),
-        );
-        orderDetailFormData.append("notes", item.notes);
-
-        await createOrderDetail(orderDetailFormData);
-      }
+      await createOrder(formData);
 
       setCart({ total: "0", cartItems: [] });
       localStorage.removeItem("cart");
 
-      toast.success(MESSAGES.ORDER.CREATE_SUCCESS || orderResponse?.message, {
+      toast.success(MESSAGES.ORDER.CREATE_SUCCESS, {
         id: toastId,
       });
     } catch (error: any) {
       if (error instanceof AxiosError) {
-        toast.error(
-          MESSAGES.GENERAL.ERROR ||
-            error?.response?.data?.message ||
-            error.message,
-          { id: toastId },
-        );
+        toast.error(error?.response?.data?.message || MESSAGES.GENERAL.ERROR, {
+          id: toastId,
+        });
       } else {
-        toast.error(MESSAGES.GENERAL.UNKNOWN, { id: toastId });
+        toast.error(MESSAGES.GENERAL.UNKNOWN, {
+          id: toastId,
+        });
       }
     } finally {
-      if (onCloseModal) onCloseModal();
+      onCloseModal?.();
       mutate();
       setIsSubmitting(false);
     }
@@ -78,49 +67,42 @@ const useOrderActions = () => {
   const handleUpdateOrder = async (
     orderId: number,
     updatedItems: CartItemInterface[],
-    total: string,
     paymentMethod: string,
     mutate: () => void,
     onCloseModal?: () => void,
-  ): Promise<void> => {
+  ) => {
     setIsSubmitting(true);
+
     const toastId = toast.loading("Sedang memperbarui pesanan...");
+
     try {
       const formData = new FormData();
-      formData.append("total", total);
       formData.append("paymentMethod", paymentMethod);
-      await updateOrder(orderId, formData);
+      formData.append(
+        "items",
+        JSON.stringify(
+          updatedItems.map((item) => ({
+            menuId: item.id,
+            quantity: item.quantity,
+            notes: item.notes,
+          })),
+        ),
+      );
 
-      await deleteOrderDetailByOrderId(orderId);
-
-      for (const item of updatedItems) {
-        const detailFormData = new FormData();
-        detailFormData.append("orderId", orderId.toString());
-        detailFormData.append("menuId", item.id.toString());
-        detailFormData.append("quantity", item.quantity.toString());
-        detailFormData.append("price", item.price.toString());
-        detailFormData.append(
-          "subtotal",
-          (item.price * item.quantity).toString(),
-        );
-        detailFormData.append("notes", item.notes);
-        await createOrderDetail(detailFormData);
-      }
+      await updateOrder(orderId, formData); // ✅ FIXED
 
       toast.success(MESSAGES.ORDER.UPDATE_SUCCESS, { id: toastId });
     } catch (error: any) {
       if (error instanceof AxiosError) {
         toast.error(
-          MESSAGES.GENERAL.ERROR ||
-            error?.response?.data?.message ||
-            error.message,
+          error?.response?.data?.message || MESSAGES.GENERAL.ERROR,
           { id: toastId },
         );
       } else {
         toast.error(MESSAGES.ORDER.UPDATE_FAILED, { id: toastId });
       }
     } finally {
-      if (onCloseModal) onCloseModal();
+      onCloseModal?.();
       mutate();
       setIsSubmitting(false);
     }

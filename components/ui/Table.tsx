@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowDownUp } from "lucide-react";
 import React from "react";
 
 function mergeClasses(...classes: (string | undefined)[]) {
@@ -131,3 +132,33 @@ export const TableCaption = React.forwardRef<
   );
 });
 TableCaption.displayName = "TableCaption";
+
+
+export const SortableHeader = ({
+  label,
+  field,
+  currentSort,
+  onSort,
+}: {
+  label: string;
+  field: string;
+  currentSort: string;
+  onSort: (field: string) => void;
+}) => {
+  const active = currentSort === field || currentSort === `-${field}`;
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSort(field)}
+      className="inline-flex items-center gap-1 font-medium cursor-pointer"
+    >
+      {label}
+      <ArrowDownUp
+        className={`h-3.5 w-3.5 ${
+          active ? "text-primary" : "text-muted-foreground"
+        }`}
+      />
+    </button>
+  );
+};

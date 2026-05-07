@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { OrderDetailInterface, OrderInterface, TopItem } from "../types";
+import {  OrderInterface, TopItem } from "../types";
 
 export default function useSalesAnalytics(
   orderList: OrderInterface[],
@@ -35,15 +35,15 @@ export default function useSalesAnalytics(
 }
 
 function calculateBasicStats(orderList: OrderInterface[]) {
-  const totalRevenue = orderList.reduce((sum, o) => sum + (o.total || 0), 0);
-  const totalOrders = orderList.length;
+  const totalRevenue = orderList?.reduce((sum, o) => sum + (o.total || 0), 0);
+  const totalOrders = orderList?.length;
   const avgOrder = totalOrders ? Math.round(totalRevenue / totalOrders) : 0;
 
   return { totalRevenue, totalOrders, avgOrder };
 }
 
 function calculateItemsSold(orderList: OrderInterface[]) {
-  return orderList.reduce((sum, order) => {
+  return orderList?.reduce((sum, order) => {
     return sum + order.orderDetails.reduce((s, d) => s + d.quantity, 0);
   }, 0);
 }
@@ -110,7 +110,7 @@ function buildSalesData(
     grouped[i] = { label, revenue: 0, orders: 0 };
   });
 
-  orderList.forEach((order) => {
+  orderList?.forEach((order) => {
     const key = groupKey(new Date(order.createdAt));
 
     if (grouped[key]) {
@@ -131,7 +131,7 @@ function buildSalesData(
 function calculateTopItems(orderList: OrderInterface[]) {
   const itemMap: Record<string, TopItem> = {};
 
-  orderList.forEach((order) => {
+  orderList?.forEach((order) => {
     order.orderDetails.forEach((detail) => {
       const menu = detail.menu;
       if (!menu) return;
@@ -157,7 +157,7 @@ function calculateTopItems(orderList: OrderInterface[]) {
 function calculatePaymentStats(orderList: OrderInterface[]) {
   const paymentStats: Record<string, number> = {};
 
-  orderList.forEach((order) => {
+  orderList?.forEach((order) => {
     const method = order.paymentMethod || "Tidak diketahui";
     if (!paymentStats[method]) paymentStats[method] = 0;
     paymentStats[method] += order.total || 0;
@@ -172,10 +172,9 @@ function calculatePaymentStats(orderList: OrderInterface[]) {
 function calculateCategoryStats(orderList: OrderInterface[]) {
   const categoryMap: Record<string, number> = {};
 
-  orderList.forEach((order) => {
+  orderList?.forEach((order) => {
     order.orderDetails.forEach((detail) => {
       const category = detail.menu?.category?.categoryName || "Lainnya";
-
       if (!categoryMap[category]) categoryMap[category] = 0;
       categoryMap[category] += detail.subtotal;
     });

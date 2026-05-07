@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { AxiosError } from "axios";
-import { updateOrder } from "../api/orderServices";
+import { payment as paymentService } from "../api/orderServices";
 import { MESSAGES } from "../constants/messages";
-import { toast } from "react-hot-toast/headless";
+import { toast } from "react-hot-toast";
 
 interface PaymentPropsInterface {
   orderId: number;
@@ -36,12 +36,13 @@ const usePayment = ({ orderId, mutate }: PaymentPropsInterface) => {
     paymentFormData.append("paymentStatus", "paid");
 
     try {
-      const response = await updateOrder(orderId, paymentFormData);
+      const response = await paymentService(orderId, paymentFormData);
 
       if (!response?.data?.orderId) {
         throw new Error("Order update failed: Missing orderId");
       }
 
+      toast.success("Pembayaran berhasil. Terima kasih!", { id: toastId });
       setPaymentSuccess(true);
       mutate();
       // Call onClose when payment is successful

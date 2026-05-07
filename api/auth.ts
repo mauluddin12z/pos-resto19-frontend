@@ -6,7 +6,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_MY_BACKEND_URL as string;
 export const refreshAccessToken = async (): Promise<string | null> => {
    try {
       const res: AxiosResponse<{ accessToken: string }> = await axios.post(
-         `${API_BASE_URL}/token`,
+         `${API_BASE_URL}/auth/token`,
          {},
          {
             withCredentials: true,
@@ -17,11 +17,9 @@ export const refreshAccessToken = async (): Promise<string | null> => {
       if (accessToken) {
          return accessToken;
       }
-      window.location.href = "/login";
       return null;
    } catch (error: any) {
       console.error("Failed to refresh access token:", error.message || error);
-      window.location.href = "/login";
       return null;
    }
 };
@@ -30,7 +28,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
 export const login = async (username:string, password:string) => {
    try {
       const response = await axios.post(
-         `${process.env.NEXT_PUBLIC_MY_BACKEND_URL}/login`,
+         `${process.env.NEXT_PUBLIC_MY_BACKEND_URL}/auth/login`,
          { username, password },
          { withCredentials: true }
       );
@@ -44,7 +42,7 @@ export const login = async (username:string, password:string) => {
 // Logout user
 export const logout = async (): Promise<void> => {
    try {
-      await axiosInstance.delete(`/logout`, {});
+      await axiosInstance.delete(`/auth/logout`, {});
    } catch (error: any) {
       console.warn("Logout request failed", error.message || error);
    }

@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Fetcher function for SWR
 const fetchSession = async (): Promise<Session | null> => {
-  const { data } = await axiosInstance.get("/auth/session");
+  const { data } = await axiosInstance.get("/users/session");
   return data?.user || null;
 };
 
@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     isLoading,
     mutate,
   } = useSWR<Session | null>(
-    shouldFetch ? "/auth/session" : null,
+    shouldFetch ? "/users/session" : null,
     fetchSession,
   );
 
@@ -49,6 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       await logout();
       await mutate(null, false);
+      window.location.href = "/login";
       toast.success("Anda berhasil logout", { id: toastId });
     } catch (error) {
       console.error("Terjadi kesalahan saat logout:", error);

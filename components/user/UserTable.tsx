@@ -25,7 +25,7 @@ export default function UserTable({
   const filteredUsers = useMemo(() => {
     if (!users) return [];
 
-    return users.filter((u) =>
+    return users?.filter((u) =>
       `${u.name} ${u.username}`.toLowerCase().includes(search.toLowerCase()),
     );
   }, [users, search]);

@@ -1,7 +1,7 @@
 import { createMenu, updateMenu, deleteMenu } from "@/api/menuServices";
 import { MenuFormInterface } from "../types";
 import { MESSAGES } from "../constants/messages";
-import { toast } from "react-hot-toast/headless";
+import toast from "react-hot-toast";
 
 /**
  * Custom hook to manage Menu-related actions

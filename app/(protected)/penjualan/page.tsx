@@ -33,7 +33,9 @@ export default function PenjualanPage() {
   const { filters, updateFilter, setDate, setDateRange } = useGlobalFilter();
   const [searchQuery, setSearchQuery] = useState("");
   const { orders, isLoading } = useOrders(filters);
-  const { orders: exportedFile } = useOrders({ ...filters, pageSize: 100 });
+  const { orders: analyticsData } = useOrders({ ...filters, pageSize: 100000 });
+  const { orders: exportedFile } = useOrders({ ...filters, pageSize: 100000 });
+  const analyticsDataList = analyticsData?.data ?? [];
   const orderList = orders?.data ?? [];
 
   const [selectedOrder, setSelectedOrder] = useState<OrderInterface | null>(
@@ -46,7 +48,10 @@ export default function PenjualanPage() {
     updateFilter("searchQuery", debouncedSearch);
   }, [debouncedSearch]);
 
-  const analytics = useSalesAnalytics(orderList, filters.dateRange);
+  const analytics = useSalesAnalytics(
+    analyticsDataList,
+    filters.dateRange || "",
+  );
   const stats = useMemo(
     () => [
       {

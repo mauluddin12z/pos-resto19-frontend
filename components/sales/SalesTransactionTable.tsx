@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Eye } from "lucide-react";
 import { Button } from "../ui/Button";
 import Search from "../ui/Search";
 import {
+  SortableHeader,
   Table,
   TableBody,
   TableCell,
@@ -36,6 +37,18 @@ export default function SalesTransactionTable({
   setSearchQuery,
   statusLabel,
 }: Props) {
+  const handleSort = (field: string) => {
+    let newSort = field;
+
+    if (filters.sort === field) {
+      newSort = `-${field}`;
+    } else if (filters.sort === `-${field}`) {
+      newSort = field;
+    }
+
+    updateFilter("sort", newSort);
+  };
+
   const [selectedOrder, setSelectedOrder] = useState<OrderInterface | null>(
     null,
   );
@@ -65,11 +78,32 @@ export default function SalesTransactionTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Order</TableHead>
-            <TableHead>Waktu</TableHead>
+            <TableHead>
+              <SortableHeader
+                label="Order"
+                field="orderId"
+                currentSort={filters.sort}
+                onSort={handleSort}
+              />
+            </TableHead>
+            <TableHead>
+              <SortableHeader
+                label="Waktu"
+                field="createdAt"
+                currentSort={filters.sort}
+                onSort={handleSort}
+              />
+            </TableHead>
             <TableHead>Item</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Total</TableHead>
+            <TableHead>
+              <SortableHeader
+                label="Total"
+                field="total"
+                currentSort={filters.sort}
+                onSort={handleSort}
+              />
+            </TableHead>
             <TableHead>Detail</TableHead>
           </TableRow>
         </TableHeader>

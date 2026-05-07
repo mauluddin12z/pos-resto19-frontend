@@ -37,32 +37,48 @@ export interface UserFormInterface {
   role: string;
 }
 
-
-export interface MenuFilterInterface {
+export interface CategoryFilterInterface {
   categoryId?: number | null;
   categoryName?: string;
-  menuName?: string;
-  minPrice?: number | null;
-  maxPrice?: number | null;
   searchQuery?: string;
-  sortBy?: "menuName" | "categoryId" | "price" | "stock";
-  sortOrder?: "asc" | "desc";
-  page?: number | null;
-  pageSize?: number | null;
-}
-export interface OrderFilterInterface {
-  minTotal: number | null;
-  maxTotal: number | null;
-  paymentMethod: string;
-  searchQuery: string;
+  sort?: string;
   page: number;
   pageSize: number;
-  sortBy: string;
-  sortOrder: "asc" | "desc";
-  dateRange: string;
-  fromDate: string;
-  toDate: string;
-  paymentStatus: string;
+}
+export interface MenuFilterInterface {
+  categoryId?: number | null | { in?: number[] };
+  menuName?: string;
+  searchQuery?: string;
+  price?: {
+    gte?: number | null;
+    lte?: number | null;
+  };
+  sort?: string;
+  page: number;
+  pageSize: number;
+}
+
+export interface OrderFilterInterface {
+  page: number;
+  pageSize: number;
+
+  searchQuery?: string;
+
+  userId?: number;
+  username?: string;
+
+  paymentMethod?: string;
+  paymentStatus?: string;
+
+  total?: {
+    gte?: number | null;
+    lte?: number | null;
+  };
+
+  fromDate?: string;
+  toDate?: string;
+
+  sort?: string;
 }
 
 // Product Interfaces

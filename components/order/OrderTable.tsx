@@ -1,14 +1,29 @@
+"use client";
+
 import React from "react";
 import SkeletonLoading from "../ui/SkeletonLoading";
 import { OrderInterface, UserInterface } from "@/types";
 import momentInstance from "@/utils/momentConfig";
 import { priceFormat } from "@/utils/priceFormat";
 import PaymentStatus from "../payment/PaymentStatus";
+import { ArrowDown, ArrowDownUp } from "lucide-react";
+import {
+  SortableHeader,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/Table";
+
 export interface OrderTableInterface {
   orders: (OrderInterface & { user: UserInterface })[];
   isLoading: boolean;
   selectedOrderId: number | null;
   setSelectedOrderId: React.Dispatch<React.SetStateAction<number | null>>;
+  updateFilter: any;
+  filters: any;
 }
 
 export default function OrderTable({
@@ -16,56 +31,115 @@ export default function OrderTable({
   isLoading,
   selectedOrderId,
   setSelectedOrderId,
+  updateFilter,
+  filters,
 }: OrderTableInterface) {
+  const handleSort = (field: string) => {
+    let newSort = field;
+
+    if (filters.sort === field) {
+      newSort = `-${field}`;
+    } else if (filters.sort === `-${field}`) {
+      newSort = field;
+    }
+
+    updateFilter((prev: any) => ({
+      ...prev,
+      sort: newSort,
+      page: 1,
+    }));
+  };
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 text-xs">
-          <tr>
-            <th className="p-3 text-left">ID</th>
-            <th className="p-3 text-left">Tanggal</th>
-            <th className="p-3 text-left">Kasir</th>
-            <th className="p-3 text-left">Item</th>
-            <th className="p-3 text-right">Total</th>
-            <th className="p-3 text-center">Status</th>
-          </tr>
-        </thead>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="p-3 text-left">
+              <SortableHeader
+                label="ID"
+                field="orderId"
+                currentSort={filters.sort}
+                onSort={handleSort}
+              />
+            </TableHead>
 
-        <tbody>
+            <TableHead className="p-3 text-left">
+              <SortableHeader
+                label="Waktu"
+                field="createdAt"
+                currentSort={filters.sort}
+                onSort={handleSort}
+              />
+            </TableHead>
+
+            <TableHead className="p-3 text-left">Kasir</TableHead>
+
+            <TableHead className="p-3 text-left">Item</TableHead>
+
+            <TableHead className="text-left">
+              <SortableHeader
+                label="Total"
+                field="total"
+                currentSort={filters.sort}
+                onSort={handleSort}
+              />
+            </TableHead>
+
+            <TableHead className="text-center">
+              <SortableHeader
+                label="Status"
+                field="paymentStatus"
+                currentSort={filters.sort}
+                onSort={handleSort}
+              />
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
           {isLoading
             ? [...Array(6)].map((_, i) => (
-                <tr key={i}>
-                  <td colSpan={6} className="p-3">
-                    <SkeletonLoading />
-                  </td>
-                </tr>
+                <TableRow key={i}>
+                  <TableCell colSpan={6}>
+                    <div className="w-full h-3.5">
+                      <SkeletonLoading />
+                    </div>
+                  </TableCell>
+                </TableRow>
               ))
-            : orders?.map((o: OrderInterface & { user: UserInterface }) => (
-                <tr
+            : orders?.map((o) => (
+                <TableRow
                   key={o.orderId}
                   onClick={() => setSelectedOrderId(o.orderId)}
-                  className={`cursor-pointer border-t hover:bg-gray-50 ${
+                  className={`cursor-pointer ${
                     selectedOrderId === o.orderId ? "bg-blue-50" : ""
                   }`}
                 >
-                  <td className="p-3 font-semibold">#{o.orderId}</td>
-                  <td className="p-3 text-gray-500">
+                  <TableCell className="p-3 font-semibold">
+                    #{o.orderId}
+                  </TableCell>
+
+                  <TableCell className="p-3 text-muted-foreground">
                     {momentInstance(o.createdAt).format("DD MMMM YYYY HH:mm")}
-                  </td>
-                  <td className="p-3">{o.user?.name}</td>
-                  <td className="p-3 text-gray-500">
+                  </TableCell>
+
+                  <TableCell>{o.user?.name}</TableCell>
+
+                  <TableCell className="p-3 text-muted-foreground">
                     {o.orderDetails.length} item
-                  </td>
-                  <td className="p-3 text-right font-bold">
+                  </TableCell>
+
+                  <TableCell className="p-3 text-left font-bold">
                     {priceFormat(o.total)}
-                  </td>
-                  <td className="p-3 text-center">
+                  </TableCell>
+
+                  <TableCell className="text-left">
                     <PaymentStatus status={o.paymentStatus} />
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

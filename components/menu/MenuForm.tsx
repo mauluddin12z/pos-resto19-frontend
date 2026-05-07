@@ -35,7 +35,7 @@ const MenuForm = ({
   handleSubmit,
   isDisable,
 }: MenuFormProps) => {
-  const filters = { page: 1, pageSize: 100 };
+  const filters = { page: 1, pageSize: 100000 };
   const { categories } = useCategories(filters);
   return (
     <form onSubmit={handleSubmit} id="menu-form" className="space-y-5">
@@ -69,12 +69,7 @@ const MenuForm = ({
       </div>
 
       {/* Menu Name */}
-      <Field
-        label="Nama Menu"
-        htmlFor="menuName"
-        error={formErrors.menuName}
-        required
-      >
+      <Field label="Nama Menu" htmlFor="menuName" error={formErrors.menuName}>
         <FormInput
           id="menuName"
           name="menuName"
@@ -104,18 +99,16 @@ const MenuForm = ({
           label="Kategori"
           htmlFor="categoryId"
           error={formErrors.categoryId}
-          required
         >
           <div className="relative">
             <FormSelect
               id="categoryId"
               value={formData.categoryId || ""}
               onChange={handleChange}
-              required
               name="categoryId"
               disabled={isDisable}
             >
-              <option>Pilih Kategori</option>
+              <option value={""}>Pilih Kategori</option>
               {categories?.data?.map((c: CategoryInterface) => (
                 <option key={c.categoryId} value={c.categoryId}>
                   {c.categoryName}
@@ -126,7 +119,7 @@ const MenuForm = ({
           </div>
         </Field>
 
-        <Field label="Harga" htmlFor="price" required error={formErrors.price}>
+        <Field label="Harga" htmlFor="price" error={formErrors.price}>
           <div className="relative">
             <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
               Rp
@@ -144,12 +137,11 @@ const MenuForm = ({
                 "w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 disabled={isDisable}:opacity-60" +
                 " pl-9 tabular-nums"
               }
-              required
               disabled={isDisable}
             />
           </div>
         </Field>
-        <Field label="Stok" htmlFor="stock" required error={formErrors.stock}>
+        <Field label="Stok" htmlFor="stock" error={formErrors.stock}>
           <FormInput
             name="stock"
             id="stock"
@@ -159,7 +151,6 @@ const MenuForm = ({
             value={formData.stock}
             onChange={handleChange}
             placeholder="0"
-            required
             disabled={isDisable}
           />
         </Field>

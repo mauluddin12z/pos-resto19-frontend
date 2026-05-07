@@ -30,11 +30,15 @@ export default function AddOrderItemModal({
   const [filters, setFilters] = useState<MenuFilterInterface>({
     categoryId: null,
     menuName: "",
-    minPrice: null,
-    maxPrice: null,
     searchQuery: "",
-    sortBy: "categoryId",
-    sortOrder: "asc",
+
+    price: {
+      gte: null,
+      lte: null,
+    },
+
+    sort: "-categoryId",
+
     page: 1,
     pageSize: 12,
   });

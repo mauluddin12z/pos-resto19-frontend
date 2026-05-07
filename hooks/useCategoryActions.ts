@@ -86,7 +86,6 @@ export default function useCategoryActions() {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("categoryName", formData.categoryName);
-      formDataToSend.append("categoryId", categoryId.toString());
       const res = await updateCategory(categoryId, formDataToSend);
       toast.success(MESSAGES.CATEGORY.UPDATE_SUCCESS || res?.message, {
         id: toastId,

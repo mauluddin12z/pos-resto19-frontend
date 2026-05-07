@@ -21,11 +21,12 @@ export default function Page() {
   const [filters, setFilters] = useState<MenuFilterInterface>({
     categoryId: null,
     menuName: "",
-    minPrice: null,
-    maxPrice: null,
     searchQuery: "",
-    sortBy: "categoryId",
-    sortOrder: "asc",
+    price: {
+      gte: null,
+      lte: null,
+    },
+    sort: "-categoryId",
     page: 1,
     pageSize: 12,
   });
@@ -49,12 +50,12 @@ export default function Page() {
 
   const debouncedSearch = useDebounce(searchQuery, 300);
 
-useEffect(() => {
-  setFilters((prev) => {
-    if (prev.searchQuery === debouncedSearch) return prev;
-    return { ...prev, searchQuery: debouncedSearch, page: 1 };
-  });
-}, [debouncedSearch]);
+  useEffect(() => {
+    setFilters((prev) => {
+      if (prev.searchQuery === debouncedSearch) return prev;
+      return { ...prev, searchQuery: debouncedSearch, page: 1 };
+    });
+  }, [debouncedSearch]);
 
   const {
     cart,
@@ -82,7 +83,11 @@ useEffect(() => {
             {/* Menu Filters */}
             <MenuFilters
               categories={categories?.data}
-              activeCategoryId={filters.categoryId}
+              activeCategoryId={
+                typeof filters.categoryId === "number"
+                  ? filters.categoryId
+                  : null
+              }
               onCategoryClick={handleCategoryClick}
               loadingCategories={loadingCategories}
             />
