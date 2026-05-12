@@ -45,5 +45,5 @@ jobs:
               npm ci
               npm run build
 
-              pm2 reload ecosystem.config.js || pm2 start ecosystem.config.js
+              pm2 reload ecosystem.config.cjs || pm2 start ecosystem.config.cjs
             '
